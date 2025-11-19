@@ -6,17 +6,18 @@
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md"
-  ],
-  "keywords": [
-    "neglect",
-    "solana",
-    "sdk",
-    "defi",
-    "market-data"
-  ],
+  "files": ["dist", "README.md"],
+
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/neglectapp/sdk.git"
+  },
+  "homepage": "https://github.com/neglectapp/sdk",
+  "bugs": {
+    "url": "https://github.com/neglectapp/sdk/issues"
+  },
+
+  "keywords": ["neglect", "solana", "sdk", "defi", "market-data"],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",

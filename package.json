@@ -1,0 +1,28 @@
+{
+  "name": "@neglectapp/sdk",
+  "version": "1.0.7",
+  "description": "Neglect SDK — real-time market data for Solana.",
+  "author": "Neglect",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "neglect",
+    "solana",
+    "sdk",
+    "defi",
+    "market-data"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "echo \"No tests yet\""
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

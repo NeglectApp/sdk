@@ -13,14 +13,6 @@ export interface NeglectClientOptions {
 }
 
 export class NeglectClient {
-  private apiKey: string;
-  private baseUrl: string;
-
-  // Public modules
-  public tokens: TokenDataService;
-  public wallets: WalletDataService;
-  public pairs: PairDataService;
-
   constructor(options: NeglectClientOptions) {
     const { apiKey, baseUrl = "https://api.neglect.trade" } = options;
 
@@ -28,24 +20,22 @@ export class NeglectClient {
       throw new Error("Neglect SDK: apiKey is required");
     }
 
-    this.apiKey = apiKey;
-    this.baseUrl = baseUrl;
-
     /**
-     * Configure global OpenAPI runtime
-     * This ensures all generated service classes automatically:
-     *   - Use your base URL
-     *   - Send the Bearer token
+     * Configure OpenAPI runtime globals
+     * All generated services automatically use these.
      */
-    OpenAPI.BASE = this.baseUrl;
-    OpenAPI.TOKEN = this.apiKey;
+    OpenAPI.BASE = baseUrl;
+    OpenAPI.TOKEN = apiKey;
     OpenAPI.HEADERS = {
-      Authorization: `Bearer ${this.apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
     };
-
-    // Attach auto-generated OpenAPI services (no constructor args!)
-    this.tokens = new TokenDataService();
-    this.wallets = new WalletDataService();
-    this.pairs = new PairDataService();
   }
+
+  /** 
+   * Expose static generated service classes directly 
+   * (this is how openapi-typescript-codegen expects usage)
+   */
+  public tokens = TokenDataService;
+  public wallets = WalletDataService;
+  public pairs = PairDataService;
 }

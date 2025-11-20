@@ -31,11 +31,11 @@ NEGLECT_API_KEY=your_key_here
 ```ts
 import { NeglectClient } from "neglect";
 
-const client = new NeglectClient({
+const neglect = new NeglectClient({
   apiKey: process.env.NEGLECT_API_KEY!,
 });
 
-const data = await client.tokens.price(
+const data = await neglect.tokens.price(
   "So11111111111111111111111111111111111111112"
 );
 
@@ -51,7 +51,7 @@ https://docs.neglect.trade/products/data-services
 ### Example
 
 ```ts
-const price = await client.tokens.price(address);
+const price = await neglect.tokens.price(address);
 ```
 
 ## License

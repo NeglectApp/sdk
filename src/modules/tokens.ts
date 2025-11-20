@@ -1,10 +1,9 @@
-// src/modules/tokens.ts
-
 import { NeglectClient } from "../client";
 
 export interface TokenPriceResponse {
   price: number;
-  updatedAt: string;
+  mcap: number;
+  liquidity: number;
 }
 
 export class TokensModule {
@@ -19,7 +18,6 @@ export class TokensModule {
   }
 
   // Future endpoints:
-
   // metadata(address: string) {
   //   return this.client.request(`/tokens/${address}/metadata`);
   // }

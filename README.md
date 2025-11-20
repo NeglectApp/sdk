@@ -1,54 +1,68 @@
 # Neglect SDK (TypeScript)
 
-Official TypeScript SDK for Neglect Data Services — fast, reliable Solana market data.
+Official TypeScript SDK for Neglect — fast Solana market data APIs for developers, analysts, and trading tools.
 
 ## Install
 
-Temporary development package:
-
-```bash
-npm install @neglectapp/sdk
-```
-
-Final package (once cooldown expires):
-
-```bash
+\`\`\`bash
 npm install neglect
-```
+\`\`\`
+
+or with yarn:
+
+\`\`\`bash
+yarn add neglect
+\`\`\`
 
 ## Authentication
 
-Create an API key at:
+Create your API key at:
 
 https://neglect.trade/developers
 
-Store it in your `.env` file:
+Store it in your environment:
 
-```
+\`\`\`
 NEGLECT_API_KEY=your_key_here
-```
+\`\`\`
 
 ## Quick Start
 
-```ts
-import "dotenv/config";
-import { NeglectClient } from "@neglectapp/sdk";
+\`\`\`ts
+import { NeglectClient } from "neglect";
 
-// Recommended usage:
-const neglect = new NeglectClient({
+const client = new NeglectClient({
   apiKey: process.env.NEGLECT_API_KEY!,
 });
 
-const price = await neglect.tokens.price(
+const data = await client.tokens.price(
   "So11111111111111111111111111111111111111112"
 );
 
-console.log(price);
-```
+console.log(data);
+\`\`\`
+
+## Available Methods
+
+### tokens.price(address: string)
+
+Fetch the latest price, market cap, and liquidity.
+
+\`\`\`ts
+const price = await client.tokens.price(address);
+\`\`\`
+
+Response example:
+
+\`\`\`json
+{
+  "price": 0.0025,
+  "mcap": 125000,
+  "liquidity": 34000
+}
+\`\`\`
 
 ## Documentation
-
-Full API reference and endpoint documentation:
 
 https://docs.neglect.trade/products/data-services
 

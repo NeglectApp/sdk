@@ -1,6 +1,6 @@
 {
   "name": "neglect",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Neglect SDK — real-time market + token intelligence for Solana.",
   "author": "Neglect",
   "license": "MIT",
@@ -29,14 +29,14 @@
     "tokens"
   ],
   "scripts": {
-  "generate:sdk": "dotenv -e .env -- sh -c 'curl -H \"Authorization: Bearer $GITHUB_TOKEN\" -L \"https://raw.githubusercontent.com/NeglectApp/api-gateway/main/config/routes.oas.json\" -o routes.oas.json && npx openapi --client fetch --input routes.oas.json --output src/generated'",
-  "generate:shortcuts": "node scripts/generate-shortcuts.js",
-  "build": "tsc",
-  "dev": "tsc --watch",
-  "release": "npm version patch && git push && git push --tags && npm publish",
-  "prepublishOnly": "npm run generate:sdk && npm run generate:shortcuts && npm run build",
-  "test": "echo \"No tests yet\""
-},
+    "generate:sdk": "dotenv -e .env -- sh -c 'curl -H \"Authorization: Bearer $GITHUB_TOKEN\" -L \"https://raw.githubusercontent.com/NeglectApp/api-gateway/main/config/routes.oas.json\" -o routes.oas.json && npx openapi --client fetch --input routes.oas.json --output src/generated'",
+    "generate:shortcuts": "node scripts/generate-shortcuts.js",
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "release": "npm version patch && git push && git push --tags && npm publish",
+    "prepublishOnly": "npm run generate:sdk && npm run generate:shortcuts && npm run build",
+    "test": "echo \"No tests yet\""
+  },
   "devDependencies": {
     "dotenv-cli": "^11.0.0",
     "openapi-typescript-codegen": "^0.29.0",

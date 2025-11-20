@@ -1,6 +1,6 @@
 {
-  "name": "@neglectapp/sdk",
-  "version": "1.0.8",
+  "name": "neglect",
+  "version": "1.0.0",
   "description": "Neglect SDK — real-time market data for Solana.",
   "author": "Neglect",
   "license": "MIT",

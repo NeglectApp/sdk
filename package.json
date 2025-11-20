@@ -6,22 +6,18 @@
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-
   "files": [
     "dist",
     "README.md"
   ],
-
   "repository": {
     "type": "git",
     "url": "git+https://github.com/neglectapp/sdk.git"
   },
-
   "homepage": "https://github.com/neglectapp/sdk",
   "bugs": {
     "url": "https://github.com/neglectapp/sdk/issues"
   },
-
   "keywords": [
     "neglect",
     "solana",
@@ -32,22 +28,15 @@
     "web3",
     "tokens"
   ],
-
   "scripts": {
-    "**generate:sdk**": "dotenv -e .env -- curl -H \"Authorization: Bearer $GITHUB_TOKEN\" -H \"Accept: application/vnd.github.raw+json\" -L \"https://api.github.com/repos/NeglectApp/api-gateway/contents/config/routes.oas.json?ref=main\" -o routes.oas.json && npx openapi --client fetch --input routes.oas.json --output src/generated",
-
-    "**postgenerate:sdk**": "node scripts/generate-shortcuts.js",
-
+    "generate:sdk": "dotenv -e .env -- curl -H \"Authorization: Bearer $GITHUB_TOKEN\" -H \"Accept: application/vnd.github.raw+json\" -L \"https://api.github.com/repos/NeglectApp/api-gateway/contents/config/routes.oas.json?ref=main\" -o routes.oas.json && npx openapi --client fetch --input routes.oas.json --output src/generated",
+    "generate:shortcuts": "node scripts/generate-shortcuts.js",
     "build": "tsc",
     "dev": "tsc --watch",
-
-    "**prepublishOnly**": "dotenv -e .env -- npm run generate:sdk && npm run build",
-
-    "test": "echo \"No tests yet\"",
-
-    "**release**": "npm version patch && git push && git push --tags && npm publish"
+    "release": "npm version patch && git push && git push --tags && npm publish",
+    "prepublishOnly": "npm run generate:sdk && npm run generate:shortcuts && npm run build",
+    "test": "echo \"No tests yet\""
   },
-
   "devDependencies": {
     "dotenv-cli": "^11.0.0",
     "openapi-typescript-codegen": "^0.29.0",

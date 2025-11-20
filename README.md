@@ -35,7 +35,8 @@ const neglect = new NeglectClient({
   apiKey: process.env.NEGLECT_API_KEY!,
 });
 
-const data = await neglect.tokens.price(
+// You can call ANY Neglect API method directly:
+const data = await neglect.getTokenPrice(
   "So11111111111111111111111111111111111111112"
 );
 
@@ -51,7 +52,7 @@ https://docs.neglect.trade/products/data-services
 ### Example
 
 ```ts
-const price = await neglect.getTokenPrice(address);
+const holdings = await neglect.getWalletTokens(walletAddress);
 ```
 
 ## License

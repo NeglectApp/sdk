@@ -44,27 +44,15 @@ console.log(data);
 
 ## Available Methods
 
-### tokens.price(address: string)
+The SDK mirrors the Neglect API. Full endpoint reference:
 
-Fetch the latest price, market cap, and liquidity.
+https://docs.neglect.trade/products/data-services
+
+### Example
 
 ```ts
 const price = await client.tokens.price(address);
 ```
-
-Response example:
-
-```json
-{
-  "price": 0.0025,
-  "mcap": 125000,
-  "liquidity": 34000
-}
-```
-
-## Documentation
-
-https://docs.neglect.trade/products/data-services
 
 ## License
 

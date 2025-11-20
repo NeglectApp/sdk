@@ -51,7 +51,7 @@ https://docs.neglect.trade/products/data-services
 ### Example
 
 ```ts
-const price = await neglect.tokens.getTokenPrice(address);
+const price = await neglect.getTokenPrice(address);
 ```
 
 ## License

@@ -3,8 +3,9 @@
     "target": "ES2020",
     "module": "CommonJS",
     "moduleResolution": "Node",
+
+    "rootDir": "src",
     "outDir": "dist",
-    "rootDir": ".",
 
     "declaration": true,
     "declarationMap": false,
@@ -12,9 +13,7 @@
 
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
-
-    "verbatimModuleSyntax": false
+    "skipLibCheck": true
   },
-  "include": ["index.ts", "src/**/*"]
+  "include": ["src/**/*"]
 }

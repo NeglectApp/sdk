@@ -1,6 +1,11 @@
 // src/client.ts
 
-import { TokensModule } from "./modules/tokens";
+import {
+  TokenDataService,
+  WalletDataService,
+  PairDataService,
+  OpenAPI,
+} from "./generated";
 
 export interface NeglectClientOptions {
   apiKey: string;
@@ -11,7 +16,10 @@ export class NeglectClient {
   private apiKey: string;
   private baseUrl: string;
 
-  public tokens: TokensModule;
+  // Public modules
+  public tokens: TokenDataService;
+  public wallets: WalletDataService;
+  public pairs: PairDataService;
 
   constructor(options: NeglectClientOptions) {
     const { apiKey, baseUrl = "https://api.neglect.trade" } = options;
@@ -23,42 +31,21 @@ export class NeglectClient {
     this.apiKey = apiKey;
     this.baseUrl = baseUrl;
 
-    // attach modules
-    this.tokens = new TokensModule(this);
-  }
+    /**
+     * Configure global OpenAPI runtime
+     * This ensures all generated service classes automatically:
+     *   - Use your base URL
+     *   - Send the Bearer token
+     */
+    OpenAPI.BASE = this.baseUrl;
+    OpenAPI.TOKEN = this.apiKey;
+    OpenAPI.HEADERS = {
+      Authorization: `Bearer ${this.apiKey}`,
+    };
 
-  async request<T = any>(
-    path: string,
-    opts: {
-      method?: string;
-      body?: any;
-      headers?: Record<string, string>;
-    } = {}
-  ): Promise<T> {
-    const url = `${this.baseUrl}${path}`;
-
-    const res = await fetch(url, {
-      method: opts.method ?? "GET",
-      headers: {
-        "Authorization": `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json",
-        ...(opts.headers ?? {})
-      },
-      body: opts.body ? JSON.stringify(opts.body) : undefined
-    });
-
-    if (!res.ok) {
-      let text: string;
-
-      try {
-        text = await res.text();
-      } catch {
-        text = "Unknown error";
-      }
-
-      throw new Error(`Neglect SDK error (${res.status}): ${text}`);
-    }
-
-    return res.json() as Promise<T>;
+    // Attach auto-generated OpenAPI services (no constructor args!)
+    this.tokens = new TokenDataService();
+    this.wallets = new WalletDataService();
+    this.pairs = new PairDataService();
   }
 }

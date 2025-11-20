@@ -29,6 +29,7 @@
     "tokens"
   ],
   "scripts": {
+    "clean": "rm -rf dist",
     "generate:sdk": "dotenv -e .env -- sh -c 'curl -H \"Authorization: Bearer $GITHUB_TOKEN\" -L \"https://raw.githubusercontent.com/NeglectApp/api-gateway/main/config/routes.oas.json\" -o routes.oas.json && npx openapi --client fetch --input routes.oas.json --output src/generated'",
     "generate:shortcuts": "node scripts/generate-shortcuts.js",
     "build": "tsc",

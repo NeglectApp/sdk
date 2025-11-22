@@ -12,6 +12,7 @@ const GENERATED_SERVICES_DIR = path.join(__dirname, "..", "src", "generated", "s
 const CLIENT_PATH = path.join(__dirname, "..", "src", "client.ts");
 const METHOD_BLOCKLIST = {
   // Add service -> Set<methodName> entries to prevent shortcut generation.
+  DefaultService: new Set(["getMcpConfig"]),
 };
 
 function pascalToCamel(name) {

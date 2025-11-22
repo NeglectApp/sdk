@@ -224,229 +224,309 @@
         }
       }
     },
- "/tokens/{tokenAddress}/market-data": {
-  "x-zuplo-path": {
-    "pathMode": "open-api"
-  },
-  "get": {
-    "summary": "Get Real-Time Market Data for a Token",
-    "description": "Returns real-time metrics including price, market capitalization, FDV, liquidity, total and circulating supply, and current holder count. This endpoint does not use time windows and does not include trade statistics.",
-    "parameters": [
-      {
-        "name": "tokenAddress",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string"
-        },
-        "description": "The token's mint address (e.g., a Solana SPL token address)"
-      }
-    ],
-    "responses": {
-      "200": {
-        "description": "Real-time market data returned successfully",
-        "content": {
-          "application/json": {
+    "/tokens/{tokenAddress}/market-data": {
+      "x-zuplo-path": {
+        "pathMode": "open-api"
+      },
+      "get": {
+        "summary": "Get Real-Time Market Data for a Token",
+        "description": "Returns real-time metrics including price, market capitalization, FDV, liquidity, total and circulating supply, and current holder count. This endpoint does not use time windows and does not include trade statistics.",
+        "parameters": [
+          {
+            "name": "tokenAddress",
+            "in": "path",
+            "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "data": {
+              "type": "string"
+            },
+            "description": "The token's mint address (e.g., a Solana SPL token address)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Real-time market data returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "price": { "type": "number" },
-                    "marketCap": { "type": "number" },
-                    "fdv": { "type": "number" },
-                    "liquidity": { "type": "number" },
-                    "totalSupply": { "type": "number" },
-                    "remainingSupply": { "type": "number" },
-                    "holdersCount": { "type": "integer" }
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "price": {
+                          "type": "number"
+                        },
+                        "marketCap": {
+                          "type": "number"
+                        },
+                        "fdv": {
+                          "type": "number"
+                        },
+                        "liquidity": {
+                          "type": "number"
+                        },
+                        "totalSupply": {
+                          "type": "number"
+                        },
+                        "remainingSupply": {
+                          "type": "number"
+                        },
+                        "holdersCount": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "price",
+                        "marketCap",
+                        "fdv",
+                        "liquidity",
+                        "totalSupply",
+                        "remainingSupply",
+                        "holdersCount"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "tokenAddress": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "tokenAddress"
+                      ]
+                    }
                   },
                   "required": [
-                    "price",
-                    "marketCap",
-                    "fdv",
-                    "liquidity",
-                    "totalSupply",
-                    "remainingSupply",
-                    "holdersCount"
+                    "data",
+                    "meta"
                   ]
                 },
-                "meta": {
+                "examples": {
+                  "success": {
+                    "summary": "Example response",
+                    "value": {
+                      "data": {
+                        "price": 0.1234,
+                        "marketCap": 5000000,
+                        "fdv": 20000000,
+                        "liquidity": 120000,
+                        "totalSupply": 1000000000,
+                        "remainingSupply": 420000000,
+                        "holdersCount": 340
+                      },
+                      "meta": {
+                        "tokenAddress": "So11111111111111111111111111111111111111112"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid token address",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "tokenAddress": { "type": "string" }
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "field": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "tokenAddress": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "tokenAddress"
+                      ]
+                    }
                   },
-                  "required": ["tokenAddress"]
+                  "required": [
+                    "error",
+                    "meta"
+                  ]
+                },
+                "examples": {
+                  "missing_param": {
+                    "summary": "Path parameter missing",
+                    "value": {
+                      "error": {
+                        "code": "MISSING_TOKEN_ADDRESS",
+                        "message": "Missing tokenAddress",
+                        "field": "tokenAddress"
+                      },
+                      "meta": {
+                        "tokenAddress": null
+                      }
+                    }
+                  }
                 }
-              },
-              "required": ["data", "meta"]
-            },
-            "examples": {
-              "success": {
-                "summary": "Example response",
-                "value": {
-                  "data": {
-                    "price": 0.1234,
-                    "marketCap": 5000000,
-                    "fdv": 20000000,
-                    "liquidity": 120000,
-                    "totalSupply": 1000000000,
-                    "remainingSupply": 420000000,
-                    "holdersCount": 340
+              }
+            }
+          },
+          "404": {
+            "description": "Token or its trading pairs not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "tokenAddress": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "tokenAddress"
+                      ]
+                    }
                   },
-                  "meta": {
-                    "tokenAddress": "So11111111111111111111111111111111111111112"
+                  "required": [
+                    "error",
+                    "meta"
+                  ]
+                },
+                "examples": {
+                  "not_found": {
+                    "summary": "Token not found",
+                    "value": {
+                      "error": {
+                        "code": "NO_PAIRS_FOUND",
+                        "message": "No pairs found for token"
+                      },
+                      "meta": {
+                        "tokenAddress": "So11111111111111111111111111111111111111112"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "tokenAddress": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "tokenAddress"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "meta"
+                  ]
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Internal error",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_SERVER_ERROR",
+                        "message": "Internal Server Error"
+                      },
+                      "meta": {
+                        "tokenAddress": "So11111111111111111111111111111111111111112"
+                      }
+                    }
                   }
                 }
               }
             }
           }
-        }
-      },
-      "400": {
-        "description": "Missing or invalid token address",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "object",
-                  "properties": {
-                    "code": { "type": "string" },
-                    "message": { "type": "string" },
-                    "field": { "type": "string", "nullable": true }
-                  },
-                  "required": ["code", "message"]
-                },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "tokenAddress": { "type": ["string", "null"] }
-                  },
-                  "required": ["tokenAddress"]
-                }
-              },
-              "required": ["error", "meta"]
-            },
-            "examples": {
-              "missing_param": {
-                "summary": "Path parameter missing",
-                "value": {
-                  "error": {
-                    "code": "MISSING_TOKEN_ADDRESS",
-                    "message": "Missing tokenAddress",
-                    "field": "tokenAddress"
-                  },
-                  "meta": { "tokenAddress": null }
-                }
-              }
-            }
-          }
-        }
-      },
-      "404": {
-        "description": "Token or its trading pairs not found",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "object",
-                  "properties": {
-                    "code": { "type": "string" },
-                    "message": { "type": "string" }
-                  },
-                  "required": ["code", "message"]
-                },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "tokenAddress": { "type": "string" }
-                  },
-                  "required": ["tokenAddress"]
-                }
-              },
-              "required": ["error", "meta"]
-            },
-            "examples": {
-              "not_found": {
-                "summary": "Token not found",
-                "value": {
-                  "error": {
-                    "code": "NO_PAIRS_FOUND",
-                    "message": "No pairs found for token"
-                  },
-                  "meta": { "tokenAddress": "So11111111111111111111111111111111111111112" }
-                }
-              }
-            }
-          }
-        }
-      },
-      "500": {
-        "description": "Unexpected server error",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "object",
-                  "properties": {
-                    "code": { "type": "string" },
-                    "message": { "type": "string" }
-                  },
-                  "required": ["code", "message"]
-                },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "tokenAddress": { "type": ["string", "null"] }
-                  },
-                  "required": ["tokenAddress"]
-                }
-              },
-              "required": ["error", "meta"]
-            },
-            "examples": {
-              "internal_error": {
-                "summary": "Internal error",
-                "value": {
-                  "error": {
-                    "code": "INTERNAL_SERVER_ERROR",
-                    "message": "Internal Server Error"
-                  },
-                  "meta": { "tokenAddress": "So11111111111111111111111111111111111111112" }
-                }
-              }
-            }
+        },
+        "operationId": "get-token-marketdata",
+        "tags": [
+          "Token Data"
+        ],
+        "x-zuplo-route": {
+          "corsPolicy": "anything-goes",
+          "handler": {
+            "export": "default",
+            "module": "$import(./modules/tokens/market-data)",
+            "options": {}
+          },
+          "policies": {
+            "inbound": [
+              "api-key-inbound",
+              "check-status",
+              "rate-limit-by-plan",
+              "openmeter-quota"
+            ],
+            "outbound": []
           }
         }
       }
     },
-    "operationId": "get-token-marketdata",
-    "tags": ["Token Data"],
-    "x-zuplo-route": {
-      "corsPolicy": "anything-goes",
-      "handler": {
-        "export": "default",
-        "module": "$import(./modules/tokens/market-data)",
-        "options": {}
-      },
-      "policies": {
-        "inbound": [
-          "api-key-inbound",
-          "check-status",
-          "rate-limit-by-plan",
-          "openmeter-quota"
-        ],
-        "outbound": []
-      }
-    }
-  }
-},
     "/tokens/{tokenAddress}/holders": {
       "x-zuplo-path": {
         "pathMode": "open-api"
@@ -480,220 +560,315 @@
             "description": "Optional limit on number of holders returned (default: 25, max: 100)"
           }
         ],
-    "responses": {
-      "200": {
-        "description": "List of holders returned successfully",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "data": {
+        "responses": {
+          "200": {
+            "description": "List of holders returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "holders": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "rank": {
-                            "type": "integer",
-                            "description": "Rank of the holder by token amount (1 = top holder)"
-                          },
-                          "walletAddress": {
-                            "type": "string",
-                            "description": "Public key of the holder wallet"
-                          },
-                          "percentageOwned": {
-                            "type": "number",
-                            "description": "Percentage of total token supply owned by the wallet"
-                          },
-                          "tokenSupply": {
-                            "type": "number",
-                            "description": "Token amount held by the wallet (UI units)"
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "holders": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "rank": {
+                                "type": "integer",
+                                "description": "Rank of the holder by token amount (1 = top holder)"
+                              },
+                              "walletAddress": {
+                                "type": "string",
+                                "description": "Public key of the holder wallet"
+                              },
+                              "percentageOwned": {
+                                "type": "number",
+                                "description": "Percentage of total token supply owned by the wallet"
+                              },
+                              "tokenSupply": {
+                                "type": "number",
+                                "description": "Token amount held by the wallet (UI units)"
+                              }
+                            },
+                            "required": [
+                              "rank",
+                              "walletAddress",
+                              "percentageOwned",
+                              "tokenSupply"
+                            ]
                           }
+                        }
+                      },
+                      "required": [
+                        "holders"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "tokenAddress": {
+                          "type": "string"
                         },
-                        "required": [
-                          "rank",
-                          "walletAddress",
-                          "percentageOwned",
-                          "tokenSupply"
-                        ]
-                      }
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "count": {
+                          "type": "integer"
+                        },
+                        "totalSupply": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "tokenAddress",
+                        "limit",
+                        "count",
+                        "totalSupply"
+                      ]
                     }
                   },
-                  "required": ["holders"]
+                  "required": [
+                    "data",
+                    "meta"
+                  ]
                 },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "tokenAddress": { "type": "string" },
-                    "limit": { "type": "integer" },
-                    "count": { "type": "integer" },
-                    "totalSupply": { "type": "number" }
-                  },
-                  "required": ["tokenAddress", "limit", "count", "totalSupply"]
-                }
-              },
-              "required": ["data", "meta"]
-            },
-            "examples": {
-              "success": {
-                "summary": "Example Response",
-                "value": {
-                  "data": {
-                    "holders": [
-                      {
-                        "rank": 1,
-                        "walletAddress": "Dgj8w1YxzHCnfg7rzZkRzZkd1oEM2HaxX6Rfvi7eKnBX",
-                        "percentageOwned": 99.9294,
-                        "tokenSupply": 999293962.873546
+                "examples": {
+                  "success": {
+                    "summary": "Example Response",
+                    "value": {
+                      "data": {
+                        "holders": [
+                          {
+                            "rank": 1,
+                            "walletAddress": "Dgj8w1YxzHCnfg7rzZkRzZkd1oEM2HaxX6Rfvi7eKnBX",
+                            "percentageOwned": 99.9294,
+                            "tokenSupply": 999293962.873546
+                          }
+                        ]
+                      },
+                      "meta": {
+                        "tokenAddress": "So11111111111111111111111111111111111111112",
+                        "limit": 25,
+                        "count": 1,
+                        "totalSupply": 1000000000
                       }
-                    ]
-                  },
-                  "meta": {
-                    "tokenAddress": "So11111111111111111111111111111111111111112",
-                    "limit": 25,
-                    "count": 1,
-                    "totalSupply": 1000000000
+                    }
                   }
                 }
               }
             }
-          }
-        }
-      },
-      "400": {
-        "description": "Missing or invalid token address",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
+          },
+          "400": {
+            "description": "Missing or invalid token address",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "code": { "type": "string" },
-                    "message": { "type": "string" },
-                    "field": { "type": "string", "nullable": true }
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "field": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "tokenAddress": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "limit": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "tokenAddress",
+                        "limit"
+                      ]
+                    }
                   },
-                  "required": ["code", "message"]
+                  "required": [
+                    "error",
+                    "meta"
+                  ]
                 },
-                "meta": {
+                "examples": {
+                  "missing_tokenAddress": {
+                    "value": {
+                      "error": {
+                        "code": "MISSING_TOKEN_ADDRESS",
+                        "message": "Missing tokenAddress",
+                        "field": "tokenAddress"
+                      },
+                      "meta": {
+                        "tokenAddress": null,
+                        "limit": 25
+                      }
+                    }
+                  },
+                  "invalid_token": {
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN_ADDRESS",
+                        "message": "Invalid tokenAddress format",
+                        "field": "tokenAddress"
+                      },
+                      "meta": {
+                        "tokenAddress": "bad_address",
+                        "limit": 25
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Token or holders not found",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "tokenAddress": { "type": ["string", "null"] },
-                    "limit": { "type": "integer" }
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "tokenAddress": {
+                          "type": "string"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "totalSupply": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "tokenAddress",
+                        "limit",
+                        "totalSupply"
+                      ]
+                    }
                   },
-                  "required": ["tokenAddress", "limit"]
+                  "required": [
+                    "error",
+                    "meta"
+                  ]
+                },
+                "examples": {
+                  "token_not_found": {
+                    "value": {
+                      "error": {
+                        "code": "TOKEN_NOT_FOUND",
+                        "message": "Token not found"
+                      },
+                      "meta": {
+                        "tokenAddress": "So111...",
+                        "limit": 25,
+                        "totalSupply": 0
+                      }
+                    }
+                  },
+                  "no_holders": {
+                    "value": {
+                      "error": {
+                        "code": "NO_HOLDERS_FOUND",
+                        "message": "No holders found"
+                      },
+                      "meta": {
+                        "tokenAddress": "So111...",
+                        "limit": 25,
+                        "totalSupply": 1000000
+                      }
+                    }
+                  }
                 }
-              },
-              "required": ["error", "meta"]
-            },
-            "examples": {
-              "missing_tokenAddress": {
-                "value": {
-                  "error": {
-                    "code": "MISSING_TOKEN_ADDRESS",
-                    "message": "Missing tokenAddress",
-                    "field": "tokenAddress"
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "tokenAddress": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "limit": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "tokenAddress",
+                        "limit"
+                      ]
+                    }
                   },
-                  "meta": { "tokenAddress": null, "limit": 25 }
-                }
-              },
-              "invalid_token": {
-                "value": {
-                  "error": {
-                    "code": "INVALID_TOKEN_ADDRESS",
-                    "message": "Invalid tokenAddress format",
-                    "field": "tokenAddress"
-                  },
-                  "meta": { "tokenAddress": "bad_address", "limit": 25 }
+                  "required": [
+                    "error",
+                    "meta"
+                  ]
                 }
               }
             }
           }
-        }
-      },
-      "404": {
-        "description": "Token or holders not found",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "object",
-                  "properties": {
-                    "code": { "type": "string" },
-                    "message": { "type": "string" }
-                  },
-                  "required": ["code", "message"]
-                },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "tokenAddress": { "type": "string" },
-                    "limit": { "type": "integer" },
-                    "totalSupply": { "type": "number" }
-                  },
-                  "required": ["tokenAddress", "limit", "totalSupply"]
-                }
-              },
-              "required": ["error", "meta"]
-            },
-            "examples": {
-              "token_not_found": {
-                "value": {
-                  "error": {
-                    "code": "TOKEN_NOT_FOUND",
-                    "message": "Token not found"
-                  },
-                  "meta": { "tokenAddress": "So111...", "limit": 25, "totalSupply": 0 }
-                }
-              },
-              "no_holders": {
-                "value": {
-                  "error": {
-                    "code": "NO_HOLDERS_FOUND",
-                    "message": "No holders found"
-                  },
-                  "meta": { "tokenAddress": "So111...", "limit": 25, "totalSupply": 1000000 }
-                }
-              }
-            }
-          }
-        }
-      },
-      "500": {
-        "description": "Unexpected server error",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "object",
-                  "properties": {
-                    "code": { "type": "string" },
-                    "message": { "type": "string" }
-                  },
-                  "required": ["code", "message"]
-                },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "tokenAddress": { "type": ["string", "null"] },
-                    "limit": { "type": "integer" }
-                  },
-                  "required": ["tokenAddress", "limit"]
-                }
-              },
-              "required": ["error", "meta"]
-            }
-          }
-        }
-      }
         },
         "x-zuplo-route": {
           "corsPolicy": "anything-goes",
@@ -878,7 +1053,7 @@
               "maximum": 25,
               "default": 10
             },
-            "description": "Number of results to return (1\u201325)"
+            "description": "Number of results to return (1–25)"
           },
           {
             "name": "sortBy",
@@ -922,161 +1097,249 @@
           }
         ],
         "responses": {
-      "200": {
-        "description": "List of matching tokens",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "data": {
+          "200": {
+            "description": "List of matching tokens",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "tokens": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "tokenAddress": { "type": "string" },
-                          "tokenSymbol": { "type": "string" },
-                          "tokenName": { "type": "string" },
-                          "createdAt": { "type": "string", "format": "date-time" },
-                          "marketCap": { "type": ["number", "null"] }
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "tokens": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "tokenAddress": {
+                                "type": "string"
+                              },
+                              "tokenSymbol": {
+                                "type": "string"
+                              },
+                              "tokenName": {
+                                "type": "string"
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "marketCap": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "tokenAddress",
+                              "tokenSymbol",
+                              "tokenName"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "tokens"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer"
                         },
-                        "required": ["tokenAddress", "tokenSymbol", "tokenName"]
-                      }
+                        "searchQuery": {
+                          "type": "string"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "sortBy": {
+                          "type": "string"
+                        },
+                        "sortOrder": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "count",
+                        "searchQuery",
+                        "limit",
+                        "sortBy",
+                        "sortOrder"
+                      ]
                     }
                   },
-                  "required": ["tokens"]
+                  "required": [
+                    "data",
+                    "meta"
+                  ]
                 },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "count": { "type": "integer" },
-                    "searchQuery": { "type": "string" },
-                    "limit": { "type": "integer" },
-                    "sortBy": { "type": "string" },
-                    "sortOrder": { "type": "string" }
-                  },
-                  "required": ["count", "searchQuery", "limit", "sortBy", "sortOrder"]
-                }
-              },
-              "required": ["data", "meta"]
-            },
-            "examples": {
-              "success": {
-                "summary": "Example result",
-                "value": {
-                  "data": {
-                    "tokens": [
-                      {
-                        "tokenAddress": "52Es35QASGKbYfJBezqFiyWBkbX384KRjWafaoKcpump",
-                        "tokenSymbol": "CAT",
-                        "tokenName": "Cat Token",
-                        "createdAt": "2024-01-12T04:12:55Z",
-                        "marketCap": null
+                "examples": {
+                  "success": {
+                    "summary": "Example result",
+                    "value": {
+                      "data": {
+                        "tokens": [
+                          {
+                            "tokenAddress": "52Es35QASGKbYfJBezqFiyWBkbX384KRjWafaoKcpump",
+                            "tokenSymbol": "CAT",
+                            "tokenName": "Cat Token",
+                            "createdAt": "2024-01-12T04:12:55Z",
+                            "marketCap": null
+                          },
+                          {
+                            "tokenAddress": "9xbK31Ae4MNEXAMPLE...",
+                            "tokenSymbol": "DOGE",
+                            "tokenName": "DogeFi",
+                            "createdAt": "2023-12-05T18:22:11Z",
+                            "marketCap": 12400000
+                          }
+                        ]
                       },
-                      {
-                        "tokenAddress": "9xbK31Ae4MNEXAMPLE...",
-                        "tokenSymbol": "DOGE",
-                        "tokenName": "DogeFi",
-                        "createdAt": "2023-12-05T18:22:11Z",
-                        "marketCap": 12400000
+                      "meta": {
+                        "count": 2,
+                        "searchQuery": "dog",
+                        "limit": 10,
+                        "sortBy": "created",
+                        "sortOrder": "DESC"
                       }
-                    ]
-                  },
-                  "meta": {
-                    "count": 2,
-                    "searchQuery": "dog",
-                    "limit": 10,
-                    "sortBy": "created",
-                    "sortOrder": "DESC"
+                    }
                   }
                 }
               }
             }
-          }
-        }
-      },
-      "400": {
-        "description": "Invalid input (e.g., sortBy not allowed)",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
+          },
+          "400": {
+            "description": "Invalid input (e.g., sortBy not allowed)",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "code": { "type": "string" },
-                    "message": { "type": "string" },
-                    "field": { "type": "string", "nullable": true }
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "field": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "searchQuery": {
+                          "type": "string"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "sortBy": {
+                          "type": "string"
+                        },
+                        "sortOrder": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "searchQuery",
+                        "limit",
+                        "sortBy",
+                        "sortOrder"
+                      ]
+                    }
                   },
-                  "required": ["code", "message"]
-                },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "searchQuery": { "type": "string" },
-                    "limit": { "type": "integer" },
-                    "sortBy": { "type": "string" },
-                    "sortOrder": { "type": "string" }
-                  },
-                  "required": ["searchQuery", "limit", "sortBy", "sortOrder"]
+                  "required": [
+                    "error",
+                    "meta"
+                  ]
                 }
-              },
-              "required": ["error", "meta"]
+              }
             }
-          }
-        }
-      },
-      "500": {
-        "description": "Unexpected server error",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "code": { "type": "string" },
-                    "message": { "type": "string" }
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "searchQuery": {
+                          "type": "string"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "sortBy": {
+                          "type": "string"
+                        },
+                        "sortOrder": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "searchQuery",
+                        "limit",
+                        "sortBy",
+                        "sortOrder"
+                      ]
+                    }
                   },
-                  "required": ["code", "message"]
+                  "required": [
+                    "error",
+                    "meta"
+                  ]
                 },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "searchQuery": { "type": "string" },
-                    "limit": { "type": "integer" },
-                    "sortBy": { "type": "string" },
-                    "sortOrder": { "type": "string" }
-                  },
-                  "required": ["searchQuery", "limit", "sortBy", "sortOrder"]
-                }
-              },
-              "required": ["error", "meta"]
-            },
-            "examples": {
-              "internal_error": {
-                "summary": "Server failure",
-                "value": {
-                  "error": {
-                    "code": "INTERNAL_SERVER_ERROR",
-                    "message": "Internal Server Error"
-                  },
-                  "meta": {
-                    "searchQuery": "dog",
-                    "limit": 10,
-                    "sortBy": "created",
-                    "sortOrder": "DESC"
+                "examples": {
+                  "internal_error": {
+                    "summary": "Server failure",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_SERVER_ERROR",
+                        "message": "Internal Server Error"
+                      },
+                      "meta": {
+                        "searchQuery": "dog",
+                        "limit": 10,
+                        "sortBy": "created",
+                        "sortOrder": "DESC"
+                      }
+                    }
                   }
                 }
               }
             }
-          }
-        }
           }
         },
         "x-zuplo-route": {
@@ -1098,162 +1361,206 @@
       }
     },
     "/tokens/graduated": {
-  "x-zuplo-path": {
-    "pathMode": "open-api"
-  },
-  "get": {
-    "summary": "Get Latest Graduated Tokens",
-    "description": "Fetches the most recently graduated tokens, ordered by graduation time (descending).",
-    "operationId": "get-latest-graduated-tokens",
-    "tags": ["Token Data"],
-
-    "parameters": [
-      {
-        "name": "limit",
-        "in": "query",
-        "description": "Number of results to return (1–100). Defaults to 25.",
-        "required": false,
-        "schema": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 100,
-          "default": 25
-        }
-      }
-    ],
-
-    "responses": {
-      "200": {
-        "description": "List of graduated tokens",
-        "content": {
-          "application/json": {
+      "x-zuplo-path": {
+        "pathMode": "open-api"
+      },
+      "get": {
+        "summary": "Get Latest Graduated Tokens",
+        "description": "Fetches the most recently graduated tokens, ordered by graduation time (descending).",
+        "operationId": "get-latest-graduated-tokens",
+        "tags": [
+          "Token Data"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of results to return (1–100). Defaults to 25.",
+            "required": false,
             "schema": {
-              "type": "object",
-              "properties": {
-                "data": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of graduated tokens",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "tokens": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "tokenAddress": { "type": "string" },
-                          "tokenName": { "type": "string", "nullable": true },
-                          "tokenSymbol": { "type": "string", "nullable": true },
-                          "createdAt": { "type": "string", "format": "date-time", "nullable": true },
-                          "graduatedAt": { "type": "string", "format": "date-time" }
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "tokens": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "tokenAddress": {
+                                "type": "string"
+                              },
+                              "tokenName": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "tokenSymbol": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true
+                              },
+                              "graduatedAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            },
+                            "required": [
+                              "tokenAddress",
+                              "graduatedAt"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "tokens"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer"
                         },
-                        "required": ["tokenAddress", "graduatedAt"]
-                      }
+                        "limit": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "count",
+                        "limit"
+                      ]
                     }
                   },
-                  "required": ["tokens"]
+                  "required": [
+                    "data",
+                    "meta"
+                  ]
                 },
-                "meta": {
+                "examples": {
+                  "success": {
+                    "summary": "Example result",
+                    "value": {
+                      "data": {
+                        "tokens": [
+                          {
+                            "tokenAddress": "52Es35QASGKbYfJBezqFiyWBkbX384KRjWafaoKcpump",
+                            "tokenName": "DogWater",
+                            "tokenSymbol": "DWTR",
+                            "createdAt": "2025-08-21T11:12:30.000Z",
+                            "graduatedAt": "2025-08-21T12:34:56.000Z"
+                          },
+                          {
+                            "tokenAddress": "9xbK31Ae4MN...",
+                            "tokenName": "MemeTron",
+                            "tokenSymbol": "TRON",
+                            "createdAt": "2025-08-21T10:58:00.000Z",
+                            "graduatedAt": "2025-08-21T11:59:00.000Z"
+                          }
+                        ]
+                      },
+                      "meta": {
+                        "count": 2,
+                        "limit": 25
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "count": { "type": "integer" },
-                    "limit": { "type": "integer" }
-                  },
-                  "required": ["count", "limit"]
-                }
-              },
-              "required": ["data", "meta"]
-            },
-            "examples": {
-              "success": {
-                "summary": "Example result",
-                "value": {
-                  "data": {
-                    "tokens": [
-                      {
-                        "tokenAddress": "52Es35QASGKbYfJBezqFiyWBkbX384KRjWafaoKcpump",
-                        "tokenName": "DogWater",
-                        "tokenSymbol": "DWTR",
-                        "createdAt": "2025-08-21T11:12:30.000Z",
-                        "graduatedAt": "2025-08-21T12:34:56.000Z"
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
                       },
-                      {
-                        "tokenAddress": "9xbK31Ae4MN...",
-                        "tokenName": "MemeTron",
-                        "tokenSymbol": "TRON",
-                        "createdAt": "2025-08-21T10:58:00.000Z",
-                        "graduatedAt": "2025-08-21T11:59:00.000Z"
-                      }
-                    ]
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "limit": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "limit"
+                      ]
+                    }
                   },
-                  "meta": {
-                    "count": 2,
-                    "limit": 25
+                  "required": [
+                    "error",
+                    "meta"
+                  ]
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Server failure",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_SERVER_ERROR",
+                        "message": "Unexpected error"
+                      },
+                      "meta": {
+                        "limit": 25
+                      }
+                    }
                   }
                 }
               }
             }
           }
-        }
-      },
-
-      "500": {
-        "description": "Unexpected server error",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "object",
-                  "properties": {
-                    "code": { "type": "string" },
-                    "message": { "type": "string" }
-                  },
-                  "required": ["code", "message"]
-                },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "limit": { "type": "integer" }
-                  },
-                  "required": ["limit"]
-                }
-              },
-              "required": ["error", "meta"]
-            },
-            "examples": {
-              "internal_error": {
-                "summary": "Server failure",
-                "value": {
-                  "error": {
-                    "code": "INTERNAL_SERVER_ERROR",
-                    "message": "Unexpected error"
-                  },
-                  "meta": { "limit": 25 }
-                }
-              }
-            }
+        },
+        "x-zuplo-route": {
+          "corsPolicy": "anything-goes",
+          "handler": {
+            "export": "default",
+            "module": "$import(./modules/tokens/graduated)",
+            "options": {}
+          },
+          "policies": {
+            "inbound": [
+              "api-key-inbound",
+              "check-status",
+              "rate-limit-by-plan",
+              "openmeter-quota"
+            ]
           }
         }
       }
     },
-
-    "x-zuplo-route": {
-      "corsPolicy": "anything-goes",
-      "handler": {
-        "export": "default",
-        "module": "$import(./modules/tokens/graduated)",
-        "options": {}
-      },
-      "policies": {
-        "inbound": [
-          "api-key-inbound",
-          "check-status",
-          "rate-limit-by-plan",
-          "openmeter-quota"
-        ]
-      }
-    }
-  }
-},
     "/tokens/{tokenAddress}/ath": {
       "x-zuplo-path": {
         "pathMode": "open-api"
@@ -1262,7 +1569,9 @@
         "summary": "Get Token ATH",
         "description": "Returns the all-time-high (ATH) market cap and the timestamp when it occurred, based on all historical trades for the token.",
         "operationId": "get-token-ath",
-        "tags": ["Token Data"],
+        "tags": [
+          "Token Data"
+        ],
         "parameters": [
           {
             "name": "tokenAddress",
@@ -1290,21 +1599,34 @@
                           "description": "The highest market cap ever recorded for the token."
                         },
                         "timestamp": {
-                          "type": ["string", "null"],
+                          "type": [
+                            "string",
+                            "null"
+                          ],
                           "description": "ISO timestamp of when the ATH occurred, or null if no valid ATH exists."
                         }
                       },
-                      "required": ["ath", "timestamp"]
+                      "required": [
+                        "ath",
+                        "timestamp"
+                      ]
                     },
                     "meta": {
                       "type": "object",
                       "properties": {
-                        "tokenAddress": { "type": "string" }
+                        "tokenAddress": {
+                          "type": "string"
+                        }
                       },
-                      "required": ["tokenAddress"]
+                      "required": [
+                        "tokenAddress"
+                      ]
                     }
                   },
-                  "required": ["data", "meta"]
+                  "required": [
+                    "data",
+                    "meta"
+                  ]
                 },
                 "examples": {
                   "withAth": {
@@ -1314,7 +1636,9 @@
                         "ath": 1834000.45,
                         "timestamp": "2025-08-21T14:12:00.000Z"
                       },
-                      "meta": { "tokenAddress": "So11111111111111111111111111111111111111112" }
+                      "meta": {
+                        "tokenAddress": "So11111111111111111111111111111111111111112"
+                      }
                     }
                   },
                   "noAth": {
@@ -1324,7 +1648,9 @@
                         "ath": 0,
                         "timestamp": null
                       },
-                      "meta": { "tokenAddress": "So11111111111111111111111111111111111111112" }
+                      "meta": {
+                        "tokenAddress": "So11111111111111111111111111111111111111112"
+                      }
                     }
                   }
                 }
@@ -1341,21 +1667,41 @@
                     "error": {
                       "type": "object",
                       "properties": {
-                        "code": { "type": "string" },
-                        "message": { "type": "string" },
-                        "field": { "type": "string", "nullable": true }
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "field": {
+                          "type": "string",
+                          "nullable": true
+                        }
                       },
-                      "required": ["code", "message"]
+                      "required": [
+                        "code",
+                        "message"
+                      ]
                     },
                     "meta": {
                       "type": "object",
                       "properties": {
-                        "tokenAddress": { "type": ["string", "null"] }
+                        "tokenAddress": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
                       },
-                      "required": ["tokenAddress"]
+                      "required": [
+                        "tokenAddress"
+                      ]
                     }
                   },
-                  "required": ["error", "meta"]
+                  "required": [
+                    "error",
+                    "meta"
+                  ]
                 },
                 "examples": {
                   "missing": {
@@ -1366,7 +1712,9 @@
                         "message": "Missing tokenAddress",
                         "field": "tokenAddress"
                       },
-                      "meta": { "tokenAddress": null }
+                      "meta": {
+                        "tokenAddress": null
+                      }
                     }
                   },
                   "invalid": {
@@ -1377,7 +1725,9 @@
                         "message": "Invalid tokenAddress format",
                         "field": "tokenAddress"
                       },
-                      "meta": { "tokenAddress": "bad_address" }
+                      "meta": {
+                        "tokenAddress": "bad_address"
+                      }
                     }
                   }
                 }
@@ -1394,20 +1744,34 @@
                     "error": {
                       "type": "object",
                       "properties": {
-                        "code": { "type": "string" },
-                        "message": { "type": "string" }
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
                       },
-                      "required": ["code", "message"]
+                      "required": [
+                        "code",
+                        "message"
+                      ]
                     },
                     "meta": {
                       "type": "object",
                       "properties": {
-                        "tokenAddress": { "type": "string" }
+                        "tokenAddress": {
+                          "type": "string"
+                        }
                       },
-                      "required": ["tokenAddress"]
+                      "required": [
+                        "tokenAddress"
+                      ]
                     }
                   },
-                  "required": ["error", "meta"]
+                  "required": [
+                    "error",
+                    "meta"
+                  ]
                 },
                 "examples": {
                   "no_trades": {
@@ -1417,7 +1781,9 @@
                         "code": "NO_TRADE_DATA",
                         "message": "No trade data found for token"
                       },
-                      "meta": { "tokenAddress": "So11111111111111111111111111111111111111112" }
+                      "meta": {
+                        "tokenAddress": "So11111111111111111111111111111111111111112"
+                      }
                     }
                   }
                 }
@@ -1434,20 +1800,37 @@
                     "error": {
                       "type": "object",
                       "properties": {
-                        "code": { "type": "string" },
-                        "message": { "type": "string" }
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
                       },
-                      "required": ["code", "message"]
+                      "required": [
+                        "code",
+                        "message"
+                      ]
                     },
                     "meta": {
                       "type": "object",
                       "properties": {
-                        "tokenAddress": { "type": ["string", "null"] }
+                        "tokenAddress": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
                       },
-                      "required": ["tokenAddress"]
+                      "required": [
+                        "tokenAddress"
+                      ]
                     }
                   },
-                  "required": ["error", "meta"]
+                  "required": [
+                    "error",
+                    "meta"
+                  ]
                 },
                 "examples": {
                   "internal_error": {
@@ -1457,28 +1840,14 @@
                         "code": "INTERNAL_SERVER_ERROR",
                         "message": "Internal Server Error"
                       },
-                      "meta": { "tokenAddress": "So11111111111111111111111111111111111111112" }
+                      "meta": {
+                        "tokenAddress": "So11111111111111111111111111111111111111112"
+                      }
                     }
                   }
                 }
               }
             }
-          }
-        },
-        "x-zuplo-route": {
-          "corsPolicy": "anything-goes",
-          "handler": {
-            "export": "default",
-            "module": "$import(./modules/tokens/ath)",
-            "options": {}
-          },
-          "policies": {
-            "inbound": [
-              "api-key-inbound",
-              "check-status",
-              "rate-limit-by-plan",
-              "openmeter-quota"
-            ]
           }
         },
         "x-zuplo-route": {
@@ -1649,9 +2018,16 @@
                     "error": {
                       "type": "object",
                       "properties": {
-                        "code": { "type": "string" },
-                        "message": { "type": "string" },
-                        "field": { "type": "string", "nullable": true }
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "field": {
+                          "type": "string",
+                          "nullable": true
+                        }
                       },
                       "required": [
                         "code",
@@ -1661,8 +2037,15 @@
                     "meta": {
                       "type": "object",
                       "properties": {
-                        "walletAddress": { "type": ["string", "null"] },
-                        "limit": { "type": "integer" }
+                        "walletAddress": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "limit": {
+                          "type": "integer"
+                        }
                       },
                       "required": [
                         "walletAddress",
@@ -1718,8 +2101,12 @@
                     "error": {
                       "type": "object",
                       "properties": {
-                        "code": { "type": "string" },
-                        "message": { "type": "string" }
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
                       },
                       "required": [
                         "code",
@@ -1729,8 +2116,15 @@
                     "meta": {
                       "type": "object",
                       "properties": {
-                        "walletAddress": { "type": ["string", "null"] },
-                        "limit": { "type": "integer" }
+                        "walletAddress": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "limit": {
+                          "type": "integer"
+                        }
                       },
                       "required": [
                         "walletAddress",
@@ -2309,7 +2703,9 @@
                     "meta": {
                       "type": "object",
                       "properties": {
-                        "tokenAddress": { "type": "string" }
+                        "tokenAddress": {
+                          "type": "string"
+                        }
                       },
                       "required": [
                         "tokenAddress"
@@ -2349,9 +2745,16 @@
                     "error": {
                       "type": "object",
                       "properties": {
-                        "code": { "type": "string" },
-                        "message": { "type": "string" },
-                        "field": { "type": "string", "nullable": true }
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "field": {
+                          "type": "string",
+                          "nullable": true
+                        }
                       },
                       "required": [
                         "code",
@@ -2361,7 +2764,12 @@
                     "meta": {
                       "type": "object",
                       "properties": {
-                        "tokenAddress": { "type": ["string", "null"] }
+                        "tokenAddress": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
                       },
                       "required": [
                         "tokenAddress"
@@ -2382,7 +2790,9 @@
                         "message": "Missing tokenAddress",
                         "field": "tokenAddress"
                       },
-                      "meta": { "tokenAddress": null }
+                      "meta": {
+                        "tokenAddress": null
+                      }
                     }
                   },
                   "invalid_token": {
@@ -2393,7 +2803,9 @@
                         "message": "Invalid tokenAddress format",
                         "field": "tokenAddress"
                       },
-                      "meta": { "tokenAddress": "bad_address" }
+                      "meta": {
+                        "tokenAddress": "bad_address"
+                      }
                     }
                   }
                 }
@@ -2410,8 +2822,12 @@
                     "error": {
                       "type": "object",
                       "properties": {
-                        "code": { "type": "string" },
-                        "message": { "type": "string" }
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
                       },
                       "required": [
                         "code",
@@ -2421,7 +2837,9 @@
                     "meta": {
                       "type": "object",
                       "properties": {
-                        "tokenAddress": { "type": "string" }
+                        "tokenAddress": {
+                          "type": "string"
+                        }
                       },
                       "required": [
                         "tokenAddress"
@@ -2441,7 +2859,9 @@
                         "code": "NO_TRADE_DATA",
                         "message": "No trade data found for token"
                       },
-                      "meta": { "tokenAddress": "So11111111111111111111111111111111111111112" }
+                      "meta": {
+                        "tokenAddress": "So11111111111111111111111111111111111111112"
+                      }
                     }
                   }
                 }
@@ -2458,8 +2878,12 @@
                     "error": {
                       "type": "object",
                       "properties": {
-                        "code": { "type": "string" },
-                        "message": { "type": "string" }
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
                       },
                       "required": [
                         "code",
@@ -2469,7 +2893,12 @@
                     "meta": {
                       "type": "object",
                       "properties": {
-                        "tokenAddress": { "type": ["string", "null"] }
+                        "tokenAddress": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
                       },
                       "required": [
                         "tokenAddress"
@@ -2489,7 +2918,9 @@
                         "code": "INTERNAL_SERVER_ERROR",
                         "message": "Internal Server Error"
                       },
-                      "meta": { "tokenAddress": "So11111111111111111111111111111111111111112" }
+                      "meta": {
+                        "tokenAddress": "So11111111111111111111111111111111111111112"
+                      }
                     }
                   }
                 }
@@ -2643,7 +3074,7 @@
                             "tokenImage": "https://token-cdn.io/usdt.png",
                             "tokenSymbol": "USDT",
                             "tokenName": "Tether",
-                            "tokenSupply": 3000.0,
+                            "tokenSupply": 3000,
                             "percentage": 1.8
                           }
                         ]
@@ -2681,9 +3112,16 @@
                     "error": {
                       "type": "object",
                       "properties": {
-                        "code": { "type": "string" },
-                        "message": { "type": "string" },
-                        "field": { "type": "string", "nullable": true }
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "field": {
+                          "type": "string",
+                          "nullable": true
+                        }
                       },
                       "required": [
                         "code",
@@ -2693,8 +3131,15 @@
                     "meta": {
                       "type": "object",
                       "properties": {
-                        "walletAddress": { "type": ["string", "null"] },
-                        "limit": { "type": "integer" }
+                        "walletAddress": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "limit": {
+                          "type": "integer"
+                        }
                       },
                       "required": [
                         "walletAddress",
@@ -2750,8 +3195,12 @@
                     "error": {
                       "type": "object",
                       "properties": {
-                        "code": { "type": "string" },
-                        "message": { "type": "string" }
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
                       },
                       "required": [
                         "code",
@@ -2761,8 +3210,15 @@
                     "meta": {
                       "type": "object",
                       "properties": {
-                        "walletAddress": { "type": ["string", "null"] },
-                        "limit": { "type": "integer" }
+                        "walletAddress": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "limit": {
+                          "type": "integer"
+                        }
                       },
                       "required": [
                         "walletAddress",
@@ -3191,36 +3647,6 @@
         }
       }
     },
-    "/.well-known/mcp-config": {
-      "x-zuplo-path": {
-        "pathMode": "open-api"
-      },
-      "get": {
-        "summary": "MCP Config Discovery",
-        "description": "Exposes MCP discovery schema for Smithery and other MCP clients.",
-        "operationId": "get-mcp-config",
-        "responses": {
-          "200": {
-            "description": "MCP config JSON",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        },
-        "x-zuplo-route": {
-          "corsPolicy": "anything-goes",
-          "handler": {
-            "export": "default",
-            "module": "$import(./modules/mcp-config)",
-            "options": {}
-          }
-        }
-      }
-    },
     "/mcp": {
       "x-zuplo-path": {
         "pathMode": "open-api"
@@ -3330,158 +3756,197 @@
       }
     },
     "/tokens/{tokenAddress}/audit": {
-  "x-zuplo-path": {
-    "pathMode": "open-api"
-  },
-  "get": {
-    "summary": "Get Token Audit",
-    "description": "Returns audit data for a given token address, including developer, top holder, insider, bundler, sniper, and LP burn distributions.",
-    "operationId": "get-token-audit",
-    "tags": ["Token Data"],
-    "parameters": [
-      {
-        "name": "tokenAddress",
-        "in": "path",
-        "required": true,
-        "schema": { "type": "string" },
-        "description": "The token's address (e.g., a Solana mint address)"
-      }
-    ],
-    "responses": {
-      "200": {
-        "description": "Token audit data returned successfully",
-        "content": {
-          "application/json": {
+      "x-zuplo-path": {
+        "pathMode": "open-api"
+      },
+      "get": {
+        "summary": "Get Token Audit",
+        "description": "Returns audit data for a given token address, including developer, top holder, insider, bundler, sniper, and LP burn distributions.",
+        "operationId": "get-token-audit",
+        "tags": [
+          "Token Data"
+        ],
+        "parameters": [
+          {
+            "name": "tokenAddress",
+            "in": "path",
+            "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "data": {
+              "type": "string"
+            },
+            "description": "The token's address (e.g., a Solana mint address)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token audit data returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "tokenSupply": {
-                      "type": "number",
-                      "description": "Total token supply"
-                    },
-                    "developer": {
+                    "data": {
                       "type": "object",
                       "properties": {
-                        "tokenSupply": { "type": "number" },
-                        "percent": { "type": "number" },
-                        "walletAddress": {
-                          "type": ["string", "null"],
-                          "description": "Developer wallet from token.dev_wallet"
+                        "tokenSupply": {
+                          "type": "number",
+                          "description": "Total token supply"
+                        },
+                        "developer": {
+                          "type": "object",
+                          "properties": {
+                            "tokenSupply": {
+                              "type": "number"
+                            },
+                            "percent": {
+                              "type": "number"
+                            },
+                            "walletAddress": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Developer wallet from token.dev_wallet"
+                            }
+                          }
+                        },
+                        "top10Holders": {
+                          "type": "object",
+                          "properties": {
+                            "tokenSupply": {
+                              "type": "number"
+                            },
+                            "percent": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "insiders": {
+                          "type": "object",
+                          "properties": {
+                            "tokenSupply": {
+                              "type": "number"
+                            },
+                            "percent": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "bundlers": {
+                          "type": "object",
+                          "properties": {
+                            "tokenSupply": {
+                              "type": "number"
+                            },
+                            "percent": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "snipers": {
+                          "type": "object",
+                          "properties": {
+                            "tokenSupply": {
+                              "type": "number"
+                            },
+                            "percent": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "lpBurn": {
+                          "type": "object",
+                          "properties": {
+                            "tokenSupply": {
+                              "type": "number"
+                            },
+                            "percent": {
+                              "type": "number"
+                            }
+                          }
                         }
-                      }
+                      },
+                      "required": [
+                        "tokenSupply"
+                      ]
                     },
-                    "top10Holders": {
+                    "meta": {
                       "type": "object",
                       "properties": {
-                        "tokenSupply": { "type": "number" },
-                        "percent": { "type": "number" }
-                      }
-                    },
-                    "insiders": {
-                      "type": "object",
-                      "properties": {
-                        "tokenSupply": { "type": "number" },
-                        "percent": { "type": "number" }
-                      }
-                    },
-                    "bundlers": {
-                      "type": "object",
-                      "properties": {
-                        "tokenSupply": { "type": "number" },
-                        "percent": { "type": "number" }
-                      }
-                    },
-                    "snipers": {
-                      "type": "object",
-                      "properties": {
-                        "tokenSupply": { "type": "number" },
-                        "percent": { "type": "number" }
-                      }
-                    },
-                    "lpBurn": {
-                      "type": "object",
-                      "properties": {
-                        "tokenSupply": { "type": "number" },
-                        "percent": { "type": "number" }
-                      }
+                        "tokenAddress": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "tokenAddress"
+                      ]
                     }
                   },
-                  "required": ["tokenSupply"]
+                  "required": [
+                    "data",
+                    "meta"
+                  ]
                 },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "tokenAddress": { "type": "string" }
-                  },
-                  "required": ["tokenAddress"]
-                }
-              },
-              "required": ["data", "meta"]
-            },
-
-            "examples": {
-              "success": {
-                "summary": "Example Token Audit Response",
+                "examples": {
+                  "success": {
+                    "summary": "Example Token Audit Response",
                     "value": {
                       "data": {
                         "tokenSupply": 1000000,
                         "developer": {
                           "tokenSupply": 102000,
                           "percent": 10.2,
-                      "walletAddress": "C9fjP4xqM2k8PnRftz1234abcXYZ..."
-                    },
-                    "top10Holders": {
-                      "tokenSupply": 705000,
-                      "percent": 70.5
-                    },
-                    "insiders": {
-                      "tokenSupply": 19000,
-                      "percent": 1.9
-                    },
-                    "bundlers": {
-                      "tokenSupply": 28000,
-                      "percent": 2.8
-                    },
-                    "snipers": {
-                      "tokenSupply": 11000,
-                      "percent": 1.1
-                    },
-                    "lpBurn": {
-                      "tokenSupply": 40000,
-                      "percent": 4
+                          "walletAddress": "C9fjP4xqM2k8PnRftz1234abcXYZ..."
+                        },
+                        "top10Holders": {
+                          "tokenSupply": 705000,
+                          "percent": 70.5
+                        },
+                        "insiders": {
+                          "tokenSupply": 19000,
+                          "percent": 1.9
+                        },
+                        "bundlers": {
+                          "tokenSupply": 28000,
+                          "percent": 2.8
+                        },
+                        "snipers": {
+                          "tokenSupply": 11000,
+                          "percent": 1.1
+                        },
+                        "lpBurn": {
+                          "tokenSupply": 40000,
+                          "percent": 4
+                        }
+                      },
+                      "meta": {
+                        "tokenAddress": "52Es35QASGKbYfJBezqFiyWBkbX384KRjWafaoKcpump"
+                      }
                     }
-                  },
-                  "meta": {
-                    "tokenAddress": "52Es35QASGKbYfJBezqFiyWBkbX384KRjWafaoKcpump"
                   }
                 }
               }
             }
           }
+        },
+        "x-zuplo-route": {
+          "corsPolicy": "anything-goes",
+          "handler": {
+            "export": "default",
+            "module": "$import(./modules/tokens/token-audit)",
+            "options": {}
+          },
+          "policies": {
+            "inbound": [
+              "api-key-inbound",
+              "check-status",
+              "rate-limit-by-plan",
+              "openmeter-quota"
+            ]
+          }
         }
       }
     },
-    "x-zuplo-route": {
-      "corsPolicy": "anything-goes",
-      "handler": {
-        "export": "default",
-        "module": "$import(./modules/tokens/token-audit)",
-        "options": {}
-      },
-      "policies": {
-        "inbound": [
-          "api-key-inbound",
-          "check-status",
-          "rate-limit-by-plan",
-          "openmeter-quota"
-        ]
-      }
-    }
-  }
-},
     "/health": {
       "x-zuplo-path": {
         "pathMode": "open-api"
@@ -3658,13 +4123,23 @@
                     "meta": {
                       "type": "object",
                       "properties": {
-                        "pairAddress": { "type": "string" },
-                        "tokenAddress": { "type": "string" }
+                        "pairAddress": {
+                          "type": "string"
+                        },
+                        "tokenAddress": {
+                          "type": "string"
+                        }
                       },
-                      "required": ["pairAddress", "tokenAddress"]
+                      "required": [
+                        "pairAddress",
+                        "tokenAddress"
+                      ]
                     }
                   },
-                  "required": ["data", "meta"]
+                  "required": [
+                    "data",
+                    "meta"
+                  ]
                 },
                 "examples": {
                   "success": {
@@ -3713,120 +4188,168 @@
             "description": "Missing or invalid pairAddress",
             "content": {
               "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "code": { "type": "string" },
-                    "message": { "type": "string" },
-                    "field": { "type": "string", "nullable": true }
-                  },
-                  "required": ["code", "message"]
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "field": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "pairAddress": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "pairAddress"
+                      ]
+                    }
+                  }
                 },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "pairAddress": { "type": ["string", "null"] }
-                  },
-                  "required": ["pairAddress"]
-                }
-              }
-            },
-            "examples": {
-              "missing_pair": {
-                "summary": "Missing pairAddress",
-                "value": {
-                  "error": {
-                    "code": "MISSING_PAIR_ADDRESS",
-                    "message": "Missing pairAddress",
-                    "field": "pairAddress"
-                  },
-                  "meta": { "pairAddress": null }
+                "examples": {
+                  "missing_pair": {
+                    "summary": "Missing pairAddress",
+                    "value": {
+                      "error": {
+                        "code": "MISSING_PAIR_ADDRESS",
+                        "message": "Missing pairAddress",
+                        "field": "pairAddress"
+                      },
+                      "meta": {
+                        "pairAddress": null
+                      }
+                    }
+                  }
                 }
               }
             }
-          }
-        }
           },
           "404": {
             "description": "Pair not found",
             "content": {
               "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "code": { "type": "string" },
-                    "message": { "type": "string" }
-                  },
-                  "required": ["code", "message"]
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "pairAddress": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "pairAddress"
+                      ]
+                    }
+                  }
                 },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "pairAddress": { "type": "string" }
-                  },
-                  "required": ["pairAddress"]
-                }
-              }
-            },
-            "examples": {
-              "pair_not_found": {
-                "summary": "Pair does not exist",
-                "value": {
-                  "error": {
-                    "code": "PAIR_NOT_FOUND",
-                    "message": "Pair not found"
-                  },
-                  "meta": { "pairAddress": "9z5HnczUuGxAbf1h7yA3QZPjrfK8M2Wp12yYkE7tLJbD" }
+                "examples": {
+                  "pair_not_found": {
+                    "summary": "Pair does not exist",
+                    "value": {
+                      "error": {
+                        "code": "PAIR_NOT_FOUND",
+                        "message": "Pair not found"
+                      },
+                      "meta": {
+                        "pairAddress": "9z5HnczUuGxAbf1h7yA3QZPjrfK8M2Wp12yYkE7tLJbD"
+                      }
+                    }
+                  }
                 }
               }
             }
-          }
-        }
           },
           "500": {
             "description": "Internal server error",
             "content": {
               "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "code": { "type": "string" },
-                    "message": { "type": "string" }
-                  },
-                  "required": ["code", "message"]
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "pairAddress": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "pairAddress"
+                      ]
+                    }
+                  }
                 },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "pairAddress": { "type": ["string", "null"] }
-                  },
-                  "required": ["pairAddress"]
-                }
-              }
-            },
-            "examples": {
-              "server_error": {
-                "summary": "Database failure",
-                "value": {
-                  "error": {
-                    "code": "INTERNAL_SERVER_ERROR",
-                    "message": "Internal Server Error"
-                  },
-                  "meta": { "pairAddress": "9z5HnczUuGxAbf1h7yA3QZPjrfK8M2Wp12yYkE7tLJbD" }
+                "examples": {
+                  "server_error": {
+                    "summary": "Database failure",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_SERVER_ERROR",
+                        "message": "Internal Server Error"
+                      },
+                      "meta": {
+                        "pairAddress": "9z5HnczUuGxAbf1h7yA3QZPjrfK8M2Wp12yYkE7tLJbD"
+                      }
+                    }
+                  }
                 }
               }
             }
-          }
-        }
           }
         },
         "x-zuplo-route": {
@@ -3848,130 +4371,528 @@
       }
     },
     "/tokens/audit": {
-  "x-zuplo-path": {
-    "pathMode": "open-api"
-  },
-  "get": {
-    "tags": ["Token Data"],
-    "summary": "Get Token Audit (Multiple)",
-    "description": "Returns audit data for multiple tokens in a single batch call. Accepts up to 10 token addresses via a comma-separated `addresses` query parameter. Each entry includes developer, top holder, insider, bundler, sniper, and LP burn distributions.\n\n**Cost:** 10 credits per request.",
-    "operationId": "get-token-audit-multiple",
-    "parameters": [
-      {
-        "name": "addresses",
-        "in": "query",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "example": "address1,address2"
-        },
-        "description": "Comma-separated list of up to 10 token mint addresses"
-      }
-    ],
-    "responses": {
-      "200": {
-        "description": "Batch token audit data returned successfully",
-        "content": {
-          "application/json": {
+      "x-zuplo-path": {
+        "pathMode": "open-api"
+      },
+      "get": {
+        "tags": [
+          "Token Data"
+        ],
+        "summary": "Get Token Audit (Multiple)",
+        "description": "Returns audit data for multiple tokens in a single batch call. Accepts up to 10 token addresses via a comma-separated `addresses` query parameter. Each entry includes developer, top holder, insider, bundler, sniper, and LP burn distributions.\n\n**Cost:** 10 credits per request.",
+        "operationId": "get-token-audit-multiple",
+        "parameters": [
+          {
+            "name": "addresses",
+            "in": "query",
+            "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "data": {
+              "type": "string",
+              "example": "address1,address2"
+            },
+            "description": "Comma-separated list of up to 10 token mint addresses"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Batch token audit data returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "addresses": {
-                      "type": "array",
-                      "items": { "type": "string" }
-                    },
-                    "tokens": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "tokenAddress": {
-                            "type": "string",
-                            "description": "The token mint address"
-                          },
-                          "tokenSupply": {
-                            "type": "number",
-                            "description": "Total token supply"
-                          },
-                          "developer": {
-                            "type": "object",
-                            "properties": {
-                              "tokenSupply": { "type": "number" },
-                              "percent": { "type": "number" },
-                              "walletAddress": {
-                                "type": ["string", "null"],
-                                "description": "Developer wallet address from token.dev_wallet"
-                              }
-                            }
-                          },
-                          "top10Holders": {
-                            "type": "object",
-                            "properties": {
-                              "tokenSupply": { "type": "number" },
-                              "percent": { "type": "number" }
-                            }
-                          },
-                          "insiders": {
-                            "type": "object",
-                            "properties": {
-                              "tokenSupply": { "type": "number" },
-                              "percent": { "type": "number" }
-                            }
-                          },
-                          "bundlers": {
-                            "type": "object",
-                            "properties": {
-                              "tokenSupply": { "type": "number" },
-                              "percent": { "type": "number" }
-                            }
-                          },
-                          "snipers": {
-                            "type": "object",
-                            "properties": {
-                              "tokenSupply": { "type": "number" },
-                              "percent": { "type": "number" }
-                            }
-                          },
-                          "lpBurn": {
-                            "type": "object",
-                            "properties": {
-                              "tokenSupply": { "type": "number" },
-                              "percent": { "type": "number" }
-                            }
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "addresses": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
                           }
                         },
-                        "required": ["tokenAddress"]
+                        "tokens": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "tokenAddress": {
+                                "type": "string",
+                                "description": "The token mint address"
+                              },
+                              "tokenSupply": {
+                                "type": "number",
+                                "description": "Total token supply"
+                              },
+                              "developer": {
+                                "type": "object",
+                                "properties": {
+                                  "tokenSupply": {
+                                    "type": "number"
+                                  },
+                                  "percent": {
+                                    "type": "number"
+                                  },
+                                  "walletAddress": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "Developer wallet address from token.dev_wallet"
+                                  }
+                                }
+                              },
+                              "top10Holders": {
+                                "type": "object",
+                                "properties": {
+                                  "tokenSupply": {
+                                    "type": "number"
+                                  },
+                                  "percent": {
+                                    "type": "number"
+                                  }
+                                }
+                              },
+                              "insiders": {
+                                "type": "object",
+                                "properties": {
+                                  "tokenSupply": {
+                                    "type": "number"
+                                  },
+                                  "percent": {
+                                    "type": "number"
+                                  }
+                                }
+                              },
+                              "bundlers": {
+                                "type": "object",
+                                "properties": {
+                                  "tokenSupply": {
+                                    "type": "number"
+                                  },
+                                  "percent": {
+                                    "type": "number"
+                                  }
+                                }
+                              },
+                              "snipers": {
+                                "type": "object",
+                                "properties": {
+                                  "tokenSupply": {
+                                    "type": "number"
+                                  },
+                                  "percent": {
+                                    "type": "number"
+                                  }
+                                }
+                              },
+                              "lpBurn": {
+                                "type": "object",
+                                "properties": {
+                                  "tokenSupply": {
+                                    "type": "number"
+                                  },
+                                  "percent": {
+                                    "type": "number"
+                                  }
+                                }
+                              }
+                            },
+                            "required": [
+                              "tokenAddress"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "addresses",
+                        "tokens"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "count"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ]
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Example batch token audit response",
+                    "value": {
+                      "data": {
+                        "addresses": [
+                          "52Es35QASGKbYfJBezqFiyWBkbX384KRjWafaoKcpump",
+                          "7Yt5uF3r9cTdxP5vsmg8JXbK8svDqY1N9aEz21X4vhsXc"
+                        ],
+                        "tokens": [
+                          {
+                            "tokenAddress": "52Es35QASGKbYfJBezqFiyWBkbX384KRjWafaoKcpump",
+                            "tokenSupply": 1000000,
+                            "developer": {
+                              "tokenSupply": 105000,
+                              "percent": 10.5,
+                              "walletAddress": "F7Rk2x3PT6ZC3XnKk9bAopYfM1s4W8JZTqgA1Yj2uCVZ"
+                            },
+                            "top10Holders": {
+                              "tokenSupply": 720000,
+                              "percent": 72
+                            },
+                            "bundlers": {
+                              "tokenSupply": 23000,
+                              "percent": 2.3
+                            },
+                            "insiders": {
+                              "tokenSupply": 18000,
+                              "percent": 1.8
+                            },
+                            "snipers": {
+                              "tokenSupply": 9000,
+                              "percent": 0.9
+                            },
+                            "lpBurn": {
+                              "tokenSupply": 35000,
+                              "percent": 3.5
+                            }
+                          },
+                          {
+                            "tokenAddress": "7Yt5uF3r9cTdxP5vsmg8JXbK8svDqY1N9aEz21X4vhsXc",
+                            "tokenSupply": 2500000,
+                            "developer": {
+                              "tokenSupply": 200000,
+                              "percent": 8,
+                              "walletAddress": "C4HkR5aN2dF3V8JZTqgA1Yj2uCVZ..."
+                            },
+                            "top10Holders": {
+                              "tokenSupply": 1850000,
+                              "percent": 74
+                            },
+                            "bundlers": {
+                              "tokenSupply": 30000,
+                              "percent": 3
+                            },
+                            "insiders": {
+                              "tokenSupply": 22000,
+                              "percent": 2.2
+                            },
+                            "snipers": {
+                              "tokenSupply": 15000,
+                              "percent": 1.5
+                            },
+                            "lpBurn": {
+                              "tokenSupply": 41000,
+                              "percent": 4.1
+                            }
+                          }
+                        ]
+                      },
+                      "meta": {
+                        "count": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid query parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "field": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "addresses": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "invalid": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "addresses"
+                      ]
+                    }
+                  }
+                },
+                "examples": {
+                  "missing_addresses": {
+                    "summary": "Missing addresses parameter",
+                    "value": {
+                      "error": {
+                        "code": "MISSING_ADDRESSES",
+                        "message": "Missing 'addresses' query parameter",
+                        "field": "addresses"
+                      },
+                      "meta": {
+                        "addresses": []
                       }
                     }
                   },
-                  "required": ["addresses", "tokens"]
-                },
-                "meta": {
+                  "too_many": {
+                    "summary": "Exceeded address limit",
+                    "value": {
+                      "error": {
+                        "code": "NO_VALID_ADDRESSES",
+                        "message": "A maximum of 10 addresses may be provided",
+                        "field": "addresses"
+                      },
+                      "meta": {
+                        "addresses": []
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "count": { "type": "integer" }
-                  },
-                  "required": ["count"]
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "addresses": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "addresses"
+                      ]
+                    }
+                  }
+                },
+                "examples": {
+                  "server_error": {
+                    "summary": "Database failure",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_SERVER_ERROR",
+                        "message": "Internal Server Error"
+                      },
+                      "meta": {
+                        "addresses": [
+                          "addr1",
+                          "addr2"
+                        ]
+                      }
+                    }
+                  }
                 }
-              },
-              "required": ["data", "meta"]
+              }
+            }
+          }
+        },
+        "x-zuplo-route": {
+          "corsPolicy": "anything-goes",
+          "handler": {
+            "export": "default",
+            "module": "$import(./modules/tokens/tokens-audit-multiple)",
+            "options": {}
+          },
+          "policies": {
+            "inbound": [
+              "api-key-inbound",
+              "check-status",
+              "rate-limit-by-plan",
+              "openmeter-multiple"
+            ]
+          }
+        }
+      }
+    },
+    "/pairs/audit": {
+      "x-zuplo-path": {
+        "pathMode": "open-api"
+      },
+      "get": {
+        "tags": [
+          "Pair Data"
+        ],
+        "summary": "Get Pair Audit (Multiple)",
+        "description": "Returns audit data for multiple liquidity pairs in a single batch call. Accepts up to 10 pair addresses via the `addresses` query parameter. Each entry includes pair-level and token-level audit details including developer, top holders, insiders, bundlers, snipers, and LP burn distribution.\n\n**Cost:** 10 credits per request.",
+        "operationId": "get-pair-audit-multiple",
+        "parameters": [
+          {
+            "name": "addresses",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "pairAddress1,pairAddress2"
             },
-
-            "examples": {
-              "success": {
-                "summary": "Example batch token audit response",
-                "value": {
-                  "data": {
-                    "addresses": [
-                      "52Es35QASGKbYfJBezqFiyWBkbX384KRjWafaoKcpump",
-                      "7Yt5uF3r9cTdxP5vsmg8JXbK8svDqY1N9aEz21X4vhsXc"
-                    ],
-                    "tokens": [
+            "description": "Comma-separated list of up to 10 pair addresses"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Batch pair audit data returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "pairAddress": {
+                        "type": "string",
+                        "description": "Pair address"
+                      },
+                      "tokenAddress": {
+                        "type": "string",
+                        "description": "Token mint address associated with the pair"
+                      },
+                      "tokenSupply": {
+                        "type": "number",
+                        "description": "Total token supply from the token record"
+                      },
+                      "developer": {
+                        "type": "object",
+                        "properties": {
+                          "tokenSupply": {
+                            "type": "number"
+                          },
+                          "percent": {
+                            "type": "number"
+                          },
+                          "walletAddress": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "Developer wallet (pair.dev_wallet takes priority over token.dev_wallet)"
+                          }
+                        }
+                      },
+                      "top10Holders": {
+                        "type": "object",
+                        "properties": {
+                          "tokenSupply": {
+                            "type": "number"
+                          },
+                          "percent": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "insiders": {
+                        "type": "object",
+                        "properties": {
+                          "tokenSupply": {
+                            "type": "number"
+                          },
+                          "percent": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "bundlers": {
+                        "type": "object",
+                        "properties": {
+                          "tokenSupply": {
+                            "type": "number"
+                          },
+                          "percent": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "snipers": {
+                        "type": "object",
+                        "properties": {
+                          "tokenSupply": {
+                            "type": "number"
+                          },
+                          "percent": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "lpBurn": {
+                        "type": "object",
+                        "properties": {
+                          "tokenSupply": {
+                            "type": "number"
+                          },
+                          "percent": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "pairAddress",
+                      "tokenAddress"
+                    ]
+                  }
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Example batch pair audit response",
+                    "value": [
                       {
-                        "tokenAddress": "52Es35QASGKbYfJBezqFiyWBkbX384KRjWafaoKcpump",
+                        "pairAddress": "9z5HnczUuGxAbf1h7yA3QZPjrfK8M2Wp12yYkE7tLJbD",
+                        "tokenAddress": "So11111111111111111111111111111111111111112",
                         "tokenSupply": 1000000,
                         "developer": {
                           "tokenSupply": 105000,
@@ -3982,13 +4903,13 @@
                           "tokenSupply": 720000,
                           "percent": 72
                         },
-                        "bundlers": {
-                          "tokenSupply": 23000,
-                          "percent": 2.3
-                        },
                         "insiders": {
                           "tokenSupply": 18000,
                           "percent": 1.8
+                        },
+                        "bundlers": {
+                          "tokenSupply": 23000,
+                          "percent": 2.3
                         },
                         "snipers": {
                           "tokenSupply": 9000,
@@ -4000,24 +4921,25 @@
                         }
                       },
                       {
-                        "tokenAddress": "7Yt5uF3r9cTdxP5vsmg8JXbK8svDqY1N9aEz21X4vhsXc",
+                        "pairAddress": "8aLm8K4Y4TdxP5vsmg8JXbK8svDqY1N9aEz21X4vhsXc",
+                        "tokenAddress": "So11111111111111111111111111111111111111112",
                         "tokenSupply": 2500000,
                         "developer": {
                           "tokenSupply": 200000,
                           "percent": 8,
-                          "walletAddress": "C4HkR5aN2dF3V8JZTqgA1Yj2uCVZ..."
+                          "walletAddress": "C4HkR5aN2dF3V8JZT..."
                         },
                         "top10Holders": {
                           "tokenSupply": 1850000,
                           "percent": 74
                         },
-                        "bundlers": {
-                          "tokenSupply": 30000,
-                          "percent": 3
-                        },
                         "insiders": {
                           "tokenSupply": 22000,
                           "percent": 2.2
+                        },
+                        "bundlers": {
+                          "tokenSupply": 30000,
+                          "percent": 3
                         },
                         "snipers": {
                           "tokenSupply": 15000,
@@ -4029,385 +4951,82 @@
                         }
                       }
                     ]
-                  },
-                  "meta": { "count": 2 }
+                  }
                 }
               }
             }
-          }
-        }
-      },
-
-      "400": {
-        "description": "Missing or invalid query parameter",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
+          },
+          "400": {
+            "description": "Missing or invalid query parameter",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "code": { "type": "string" },
-                    "message": { "type": "string" },
-                    "field": { "type": "string", "nullable": true }
-                  },
-                  "required": ["code", "message"]
+                    "error": {
+                      "type": "string"
+                    }
+                  }
                 },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "addresses": {
-                      "type": "array",
-                      "items": { "type": "string" }
-                    },
-                    "invalid": {
-                      "type": "array",
-                      "items": { "type": "string" },
-                      "nullable": true
+                "examples": {
+                  "missing_addresses": {
+                    "summary": "Missing addresses parameter",
+                    "value": {
+                      "error": "Missing 'addresses' query parameter"
                     }
                   },
-                  "required": ["addresses"]
-                }
-              }
-            },
-            "examples": {
-              "missing_addresses": {
-                "summary": "Missing addresses parameter",
-                "value": {
-                  "error": {
-                    "code": "MISSING_ADDRESSES",
-                    "message": "Missing 'addresses' query parameter",
-                    "field": "addresses"
-                  },
-                    "meta": { "addresses": [] }
-                }
-              },
-              "too_many": {
-                "summary": "Exceeded address limit",
-                "value": {
-                  "error": {
-                    "code": "NO_VALID_ADDRESSES",
-                    "message": "A maximum of 10 addresses may be provided",
-                    "field": "addresses"
-                  },
-                  "meta": { "addresses": [] }
-                }
-              }
-            }
-          }
-        }
-      },
-
-      "500": {
-        "description": "Internal server error",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "object",
-                  "properties": {
-                    "code": { "type": "string" },
-                    "message": { "type": "string" }
-                  },
-                  "required": ["code", "message"]
-                },
-                "meta": {
-                  "type": "object",
-                  "properties": {
-                    "addresses": {
-                      "type": "array",
-                      "items": { "type": "string" }
+                  "too_many": {
+                    "summary": "Exceeded address limit",
+                    "value": {
+                      "error": "A maximum of 10 addresses may be provided"
                     }
-                  },
-                  "required": ["addresses"]
+                  }
                 }
               }
-            },
-            "examples": {
-              "server_error": {
-                "summary": "Database failure",
-                "value": {
-                  "error": {
-                    "code": "INTERNAL_SERVER_ERROR",
-                    "message": "Internal Server Error"
-                  },
-                  "meta": { "addresses": ["addr1", "addr2"] }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "examples": {
+                  "server_error": {
+                    "summary": "Database failure",
+                    "value": {
+                      "error": "Internal Server Error"
+                    }
+                  }
                 }
               }
             }
           }
-        }
-      }
-    },
-
-    "x-zuplo-route": {
-      "corsPolicy": "anything-goes",
-      "handler": {
-        "export": "default",
-        "module": "$import(./modules/tokens/tokens-audit-multiple)",
-        "options": {}
-      },
-      "policies": {
-        "inbound": [
-          "api-key-inbound",
-          "check-status",
-          "rate-limit-by-plan",
-          "openmeter-multiple"
-        ]
-      }
-    }
-  }
-},
-    "/pairs/audit": {
-  "x-zuplo-path": {
-    "pathMode": "open-api"
-  },
-  "get": {
-    "tags": ["Pair Data"],
-    "summary": "Get Pair Audit (Multiple)",
-    "description": "Returns audit data for multiple liquidity pairs in a single batch call. Accepts up to 10 pair addresses via the `addresses` query parameter. Each entry includes pair-level and token-level audit details including developer, top holders, insiders, bundlers, snipers, and LP burn distribution.\n\n**Cost:** 10 credits per request.",
-    "operationId": "get-pair-audit-multiple",
-
-    "parameters": [
-      {
-        "name": "addresses",
-        "in": "query",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "example": "pairAddress1,pairAddress2"
         },
-        "description": "Comma-separated list of up to 10 pair addresses"
-      }
-    ],
-
-    "responses": {
-      "200": {
-        "description": "Batch pair audit data returned successfully",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "pairAddress": {
-                    "type": "string",
-                    "description": "Pair address"
-                  },
-                  "tokenAddress": {
-                    "type": "string",
-                    "description": "Token mint address associated with the pair"
-                  },
-
-                  "tokenSupply": {
-                    "type": "number",
-                    "description": "Total token supply from the token record"
-                  },
-
-                  "developer": {
-                    "type": "object",
-                    "properties": {
-                      "tokenSupply": { "type": "number" },
-                      "percent": { "type": "number" },
-                      "walletAddress": {
-                        "type": ["string", "null"],
-                        "description": "Developer wallet (pair.dev_wallet takes priority over token.dev_wallet)"
-                      }
-                    }
-                  },
-
-                  "top10Holders": {
-                    "type": "object",
-                    "properties": {
-                      "tokenSupply": { "type": "number" },
-                      "percent": { "type": "number" }
-                    }
-                  },
-
-                  "insiders": {
-                    "type": "object",
-                    "properties": {
-                      "tokenSupply": { "type": "number" },
-                      "percent": { "type": "number" }
-                    }
-                  },
-
-                  "bundlers": {
-                    "type": "object",
-                    "properties": {
-                      "tokenSupply": { "type": "number" },
-                      "percent": { "type": "number" }
-                    }
-                  },
-
-                  "snipers": {
-                    "type": "object",
-                    "properties": {
-                      "tokenSupply": { "type": "number" },
-                      "percent": { "type": "number" }
-                    }
-                  },
-
-                  "lpBurn": {
-                    "type": "object",
-                    "properties": {
-                      "tokenSupply": { "type": "number" },
-                      "percent": { "type": "number" }
-                    }
-                  }
-                },
-                "required": ["pairAddress", "tokenAddress"]
-              }
-            },
-
-            "examples": {
-              "success": {
-                "summary": "Example batch pair audit response",
-                "value": [
-                  {
-                    "pairAddress": "9z5HnczUuGxAbf1h7yA3QZPjrfK8M2Wp12yYkE7tLJbD",
-                    "tokenAddress": "So11111111111111111111111111111111111111112",
-
-                    "tokenSupply": 1000000,
-
-                    "developer": {
-                      "tokenSupply": 105000,
-                      "percent": 10.5,
-                      "walletAddress": "F7Rk2x3PT6ZC3XnKk9bAopYfM1s4W8JZTqgA1Yj2uCVZ"
-                    },
-
-                    "top10Holders": {
-                      "tokenSupply": 720000,
-                      "percent": 72
-                    },
-
-                    "insiders": {
-                      "tokenSupply": 18000,
-                      "percent": 1.8
-                    },
-
-                    "bundlers": {
-                      "tokenSupply": 23000,
-                      "percent": 2.3
-                    },
-
-                    "snipers": {
-                      "tokenSupply": 9000,
-                      "percent": 0.9
-                    },
-
-                    "lpBurn": {
-                      "tokenSupply": 35000,
-                      "percent": 3.5
-                    }
-                  },
-                  {
-                    "pairAddress": "8aLm8K4Y4TdxP5vsmg8JXbK8svDqY1N9aEz21X4vhsXc",
-                    "tokenAddress": "So11111111111111111111111111111111111111112",
-
-                    "tokenSupply": 2500000,
-
-                    "developer": {
-                      "tokenSupply": 200000,
-                      "percent": 8,
-                      "walletAddress": "C4HkR5aN2dF3V8JZT..."
-                    },
-
-                    "top10Holders": {
-                      "tokenSupply": 1850000,
-                      "percent": 74
-                    },
-
-                    "insiders": {
-                      "tokenSupply": 22000,
-                      "percent": 2.2
-                    },
-
-                    "bundlers": {
-                      "tokenSupply": 30000,
-                      "percent": 3
-                    },
-
-                    "snipers": {
-                      "tokenSupply": 15000,
-                      "percent": 1.5
-                    },
-
-                    "lpBurn": {
-                      "tokenSupply": 41000,
-                      "percent": 4.1
-                    }
-                  }
-                ]
-              }
-            }
+        "x-zuplo-route": {
+          "corsPolicy": "anything-goes",
+          "handler": {
+            "export": "default",
+            "module": "$import(./modules/pairs/pairs-audit-multiple)",
+            "options": {}
+          },
+          "policies": {
+            "inbound": [
+              "api-key-inbound",
+              "check-status",
+              "rate-limit-by-plan",
+              "openmeter-multiple"
+            ]
           }
         }
-      },
-
-      "400": {
-        "description": "Missing or invalid query parameter",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": { "error": { "type": "string" } }
-            },
-            "examples": {
-              "missing_addresses": {
-                "summary": "Missing addresses parameter",
-                "value": { "error": "Missing 'addresses' query parameter" }
-              },
-              "too_many": {
-                "summary": "Exceeded address limit",
-                "value": { "error": "A maximum of 10 addresses may be provided" }
-              }
-            }
-          }
-        }
-      },
-
-      "500": {
-        "description": "Internal server error",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": { "error": { "type": "string" } }
-            },
-            "examples": {
-              "server_error": {
-                "summary": "Database failure",
-                "value": { "error": "Internal Server Error" }
-              }
-            }
-          }
-        }
-      }
-    },
-
-    "x-zuplo-route": {
-      "corsPolicy": "anything-goes",
-      "handler": {
-        "export": "default",
-        "module": "$import(./modules/pairs/pairs-audit-multiple)",
-        "options": {}
-      },
-      "policies": {
-        "inbound": [
-          "api-key-inbound",
-          "check-status",
-          "rate-limit-by-plan",
-          "openmeter-multiple"
-        ]
       }
     }
-  }
-}
   },
   "components": {
     "schemas": {

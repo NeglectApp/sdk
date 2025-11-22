@@ -2,59 +2,62 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { PairAuditBatchResponse } from '../models/PairAuditBatchResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class PairDataService {
     /**
      * Get Pair Audit
-     * Returns audit data for a liquidity pair. Includes token-level developer and top 10 holder breakdowns (tokens + percent) and pair-level bundler, insider, sniper, and LP burn percentages.
-     * @param pairAddress The pair's address (e.g., liquidity pool or market address)
+     * Returns audit data for a single liquidity pair and its underlying token. Includes token-level distribution (developer, top holders, insiders, bundlers) and pair-level ownership breakdown (snipers, LP burn).
+     * @param pairAddress The pair address (e.g., liquidity pool address)
      * @returns any Pair audit data returned successfully
      * @throws ApiError
      */
     public static getPairAudit(
         pairAddress: string,
     ): CancelablePromise<{
-        /**
-         * Total token supply
-         */
-        token_supply?: number;
-        /**
-         * Developer-owned supply (tokens + percent)
-         */
-        dev_supply?: {
-            tokens?: number;
-            percent?: number;
+        data: {
+            /**
+             * Total token supply
+             */
+            tokenSupply: number;
+            developer: {
+                tokenSupply?: number;
+                percent?: number;
+                /**
+                 * Developer wallet (pair.dev_wallet takes priority over token.dev_wallet)
+                 */
+                walletAddress?: string | null;
+            };
+            top10Holders: {
+                tokenSupply?: number;
+                percent?: number;
+            };
+            insiders: {
+                tokenSupply?: number;
+                percent?: number;
+            };
+            bundlers: {
+                tokenSupply?: number;
+                percent?: number;
+            };
+            snipers: {
+                tokenSupply?: number;
+                percent?: number;
+            };
+            lpBurn: {
+                tokenSupply?: number;
+                percent?: number;
+            };
+            /**
+             * Whether token metadata/audit row was present
+             */
+            tokenFound: boolean;
         };
-        /**
-         * Top 10 holder-owned supply (tokens + percent)
-         */
-        top_10_supply?: {
-            tokens?: number;
-            percent?: number;
+        meta: {
+            pairAddress: string;
+            tokenAddress: string;
         };
-        /**
-         * Bundler-held supply percentage
-         */
-        bundlers_supply?: number;
-        /**
-         * Insider-held supply percentage
-         */
-        insiders_supply?: number;
-        /**
-         * Sniper-held supply percentage
-         */
-        snipers_supply?: number;
-        /**
-         * LP burn supply percentage
-         */
-        lp_burn_supply?: number;
-        /**
-         * Developer wallet address (from the token record only)
-         */
-        dev_wallet?: string | null;
     }> {
         return __request(OpenAPI, {
             method: 'GET',
@@ -62,20 +65,66 @@ export class PairDataService {
             path: {
                 'pairAddress': pairAddress,
             },
+            errors: {
+                400: `Missing or invalid pairAddress`,
+                404: `Pair not found`,
+                500: `Internal server error`,
+            },
         });
     }
     /**
      * Get Pair Audit (Multiple)
-     * Returns audit data for multiple liquidity pairs in a single batch call. Accepts up to 10 pair addresses via a comma-separated `addresses` query parameter. Each result includes token-level supply distributions and pair-level ownership breakdowns — including developer, top holders, bundlers, insiders, snipers, and LP burn percentages.
+     * Returns audit data for multiple liquidity pairs in a single batch call. Accepts up to 10 pair addresses via the `addresses` query parameter. Each entry includes pair-level and token-level audit details including developer, top holders, insiders, bundlers, snipers, and LP burn distribution.
      *
      * **Cost:** 10 credits per request.
      * @param addresses Comma-separated list of up to 10 pair addresses
-     * @returns PairAuditBatchResponse Batch pair audit data returned successfully
+     * @returns any Batch pair audit data returned successfully
      * @throws ApiError
      */
     public static getPairAuditMultiple(
         addresses: string,
-    ): CancelablePromise<PairAuditBatchResponse> {
+    ): CancelablePromise<Array<{
+        /**
+         * Pair address
+         */
+        pairAddress: string;
+        /**
+         * Token mint address associated with the pair
+         */
+        tokenAddress: string;
+        /**
+         * Total token supply from the token record
+         */
+        tokenSupply?: number;
+        developer?: {
+            tokenSupply?: number;
+            percent?: number;
+            /**
+             * Developer wallet (pair.dev_wallet takes priority over token.dev_wallet)
+             */
+            walletAddress?: string | null;
+        };
+        top10Holders?: {
+            tokenSupply?: number;
+            percent?: number;
+        };
+        insiders?: {
+            tokenSupply?: number;
+            percent?: number;
+        };
+        bundlers?: {
+            tokenSupply?: number;
+            percent?: number;
+        };
+        snipers?: {
+            tokenSupply?: number;
+            percent?: number;
+        };
+        lpBurn?: {
+            tokenSupply?: number;
+            percent?: number;
+        };
+    }>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/pairs/audit',

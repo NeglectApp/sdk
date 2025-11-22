@@ -17,12 +17,21 @@ export class WalletDataService {
     public static getTokensByDeployer(
         walletAddress: string,
         limit: number = 10,
-    ): CancelablePromise<Array<{
-        address: string;
-        name?: string;
-        symbol: string;
-        createdAt: string;
-    }>> {
+    ): CancelablePromise<{
+        data: {
+            walletAddress: string;
+            tokens: Array<{
+                tokenAddress: string;
+                tokenName?: string | null;
+                tokenSymbol: string;
+                createdAt: string;
+            }>;
+        };
+        meta: {
+            count: number;
+            limit: number;
+        };
+    }> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/wallets/{walletAddress}/deployed',
@@ -50,16 +59,21 @@ export class WalletDataService {
         walletAddress: string,
         limit: number = 10,
     ): CancelablePromise<{
-        wallet?: string;
-        count?: number;
-        tokens?: Array<{
-            tokenAddress?: string;
-            image?: string;
-            symbol?: string;
-            name?: string;
-            amount?: string;
-            percentage_owned?: number;
-        }>;
+        data: {
+            walletAddress: string;
+            tokens: Array<{
+                tokenAddress: string;
+                tokenImage?: string | null;
+                tokenSymbol?: string;
+                tokenName?: string | null;
+                tokenSupply: number;
+                percentage: number;
+            }>;
+        };
+        meta: {
+            count: number;
+            limit: number;
+        };
     }> {
         return __request(OpenAPI, {
             method: 'GET',

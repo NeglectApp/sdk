@@ -2,7 +2,6 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { TokenAuditBatchResponse } from '../models/TokenAuditBatchResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
@@ -57,13 +56,18 @@ export class TokenDataService {
     public static getTokenMarketdata(
         tokenAddress: string,
     ): CancelablePromise<{
-        price?: number;
-        marketCap?: number;
-        fdv?: number;
-        liquidity?: number;
-        totalSupply?: number;
-        remainingSupply?: number;
-        holdersCount?: number;
+        data: {
+            price: number;
+            marketCap: number;
+            fdv: number;
+            liquidity: number;
+            totalSupply: number;
+            remainingSupply: number;
+            holdersCount: number;
+        };
+        meta: {
+            tokenAddress: string;
+        };
     }> {
         return __request(OpenAPI, {
             method: 'GET',
@@ -89,24 +93,34 @@ export class TokenDataService {
     public static getTokenHolders(
         tokenAddress: string,
         limit: number = 25,
-    ): CancelablePromise<Array<{
-        /**
-         * Rank of the holder by token amount (1 = top holder)
-         */
-        rank: number;
-        /**
-         * Public key of the holder wallet
-         */
-        walletAddress: string;
-        /**
-         * Token amount held by the wallet (UI units)
-         */
-        amount: number;
-        /**
-         * Percentage of total token supply owned by the wallet
-         */
-        percentageOwned: number;
-    }>> {
+    ): CancelablePromise<{
+        data: {
+            holders: Array<{
+                /**
+                 * Rank of the holder by token amount (1 = top holder)
+                 */
+                rank: number;
+                /**
+                 * Public key of the holder wallet
+                 */
+                walletAddress: string;
+                /**
+                 * Percentage of total token supply owned by the wallet
+                 */
+                percentageOwned: number;
+                /**
+                 * Token amount held by the wallet (UI units)
+                 */
+                tokenSupply: number;
+            }>;
+        };
+        meta: {
+            tokenAddress: string;
+            limit: number;
+            count: number;
+            totalSupply: number;
+        };
+    }> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/tokens/{tokenAddress}/holders',
@@ -169,13 +183,24 @@ export class TokenDataService {
         sortBy: 'created' | 'name' | 'symbol' | 'mcap' = 'created',
         sortOrder: 'asc' | 'desc' = 'desc',
         symbolOnly: boolean = false,
-    ): CancelablePromise<Array<{
-        address: string;
-        symbol: string;
-        name: string;
-        createdAt?: string;
-        marketCap?: number;
-    }>> {
+    ): CancelablePromise<{
+        data: {
+            tokens: Array<{
+                tokenAddress: string;
+                tokenSymbol: string;
+                tokenName: string;
+                createdAt?: string;
+                marketCap?: number | null;
+            }>;
+        };
+        meta: {
+            count: number;
+            searchQuery: string;
+            limit: number;
+            sortBy: string;
+            sortOrder: string;
+        };
+    }> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/tokens/search',
@@ -201,13 +226,21 @@ export class TokenDataService {
      */
     public static getLatestGraduatedTokens(
         limit: number = 25,
-    ): CancelablePromise<Array<{
-        tokenAddress: string;
-        tokenName?: string | null;
-        tokenSymbol?: string | null;
-        createdAt?: string | null;
-        graduatedAt: string;
-    }>> {
+    ): CancelablePromise<{
+        data: {
+            tokens: Array<{
+                tokenAddress: string;
+                tokenName?: string | null;
+                tokenSymbol?: string | null;
+                createdAt?: string | null;
+                graduatedAt: string;
+            }>;
+        };
+        meta: {
+            count: number;
+            limit: number;
+        };
+    }> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/tokens/graduated',
@@ -229,14 +262,19 @@ export class TokenDataService {
     public static getTokenAth(
         tokenAddress: string,
     ): CancelablePromise<{
-        /**
-         * The highest market cap ever recorded for the token.
-         */
-        ath: number;
-        /**
-         * ISO timestamp of when the ATH occurred, or null if no valid ATH exists.
-         */
-        timestamp: string | null;
+        data: {
+            /**
+             * The highest market cap ever recorded for the token.
+             */
+            ath: number;
+            /**
+             * ISO timestamp of when the ATH occurred, or null if no valid ATH exists.
+             */
+            timestamp: string | null;
+        };
+        meta: {
+            tokenAddress: string;
+        };
     }> {
         return __request(OpenAPI, {
             method: 'GET',
@@ -394,18 +432,23 @@ export class TokenDataService {
     public static getTokenPrice(
         tokenAddress: string,
     ): CancelablePromise<{
-        /**
-         * Latest token price in SOL or USD depending on stored unit
-         */
-        price: number;
-        /**
-         * Token market capitalization
-         */
-        mcap: number;
-        /**
-         * Liquidity available for the token
-         */
-        liquidity: number;
+        data: {
+            /**
+             * Latest token price in USD
+             */
+            price: number;
+            /**
+             * Token market capitalization
+             */
+            marketCap: number;
+            /**
+             * Liquidity available for the token
+             */
+            liquidity: number;
+        };
+        meta: {
+            tokenAddress: string;
+        };
     }> {
         return __request(OpenAPI, {
             method: 'GET',
@@ -414,8 +457,8 @@ export class TokenDataService {
                 'tokenAddress': tokenAddress,
             },
             errors: {
-                400: `Missing tokenAddress parameter`,
-                404: `Token not found`,
+                400: `Missing or invalid token address`,
+                404: `Token or trade data not found`,
                 500: `Server error`,
             },
         });
@@ -495,7 +538,7 @@ export class TokenDataService {
     }
     /**
      * Get Token Audit
-     * Returns audit data for a given token address, including developer and top holder distributions (tokens + percent), as well as bundler, insider, sniper, and LP burn percentages.
+     * Returns audit data for a given token address, including developer, top holder, insider, bundler, sniper, and LP burn distributions.
      * @param tokenAddress The token's address (e.g., a Solana mint address)
      * @returns any Token audit data returned successfully
      * @throws ApiError
@@ -503,44 +546,43 @@ export class TokenDataService {
     public static getTokenAudit(
         tokenAddress: string,
     ): CancelablePromise<{
-        /**
-         * Total token supply
-         */
-        token_supply?: number;
-        /**
-         * Developer-owned supply (tokens + percent)
-         */
-        dev_supply?: {
-            tokens?: number;
-            percent?: number;
+        data: {
+            /**
+             * Total token supply
+             */
+            tokenSupply: number;
+            developer?: {
+                tokenSupply?: number;
+                percent?: number;
+                /**
+                 * Developer wallet from token.dev_wallet
+                 */
+                walletAddress?: string | null;
+            };
+            top10Holders?: {
+                tokenSupply?: number;
+                percent?: number;
+            };
+            insiders?: {
+                tokenSupply?: number;
+                percent?: number;
+            };
+            bundlers?: {
+                tokenSupply?: number;
+                percent?: number;
+            };
+            snipers?: {
+                tokenSupply?: number;
+                percent?: number;
+            };
+            lpBurn?: {
+                tokenSupply?: number;
+                percent?: number;
+            };
         };
-        /**
-         * Top 10 holder-owned supply (tokens + percent)
-         */
-        top_10_supply?: {
-            tokens?: number;
-            percent?: number;
+        meta: {
+            tokenAddress: string;
         };
-        /**
-         * Bundler-held supply percentage
-         */
-        bundlers_supply?: number;
-        /**
-         * Insider-held supply percentage
-         */
-        insiders_supply?: number;
-        /**
-         * Sniper-held supply percentage
-         */
-        snipers_supply?: number;
-        /**
-         * LP burn supply percentage
-         */
-        lp_burn_supply?: number;
-        /**
-         * Developer wallet address — sourced exclusively from the token record (never from pair-level dev wallets). Returned only if present on the token.
-         */
-        dev_wallet?: string | null;
     }> {
         return __request(OpenAPI, {
             method: 'GET',
@@ -552,16 +594,61 @@ export class TokenDataService {
     }
     /**
      * Get Token Audit (Multiple)
-     * Returns audit data for multiple tokens in a single batch call. Accepts up to 10 token addresses via a comma-separated `addresses` query parameter. Each result includes token-level developer and top holder distributions, along with bundler, insider, sniper, and LP burn percentages.
+     * Returns audit data for multiple tokens in a single batch call. Accepts up to 10 token addresses via a comma-separated `addresses` query parameter. Each entry includes developer, top holder, insider, bundler, sniper, and LP burn distributions.
      *
      * **Cost:** 10 credits per request.
      * @param addresses Comma-separated list of up to 10 token mint addresses
-     * @returns TokenAuditBatchResponse Batch token audit data returned successfully
+     * @returns any Batch token audit data returned successfully
      * @throws ApiError
      */
     public static getTokenAuditMultiple(
         addresses: string,
-    ): CancelablePromise<TokenAuditBatchResponse> {
+    ): CancelablePromise<{
+        data: {
+            addresses: Array<string>;
+            tokens: Array<{
+                /**
+                 * The token mint address
+                 */
+                tokenAddress: string;
+                /**
+                 * Total token supply
+                 */
+                tokenSupply?: number;
+                developer?: {
+                    tokenSupply?: number;
+                    percent?: number;
+                    /**
+                     * Developer wallet address from token.dev_wallet
+                     */
+                    walletAddress?: string | null;
+                };
+                top10Holders?: {
+                    tokenSupply?: number;
+                    percent?: number;
+                };
+                insiders?: {
+                    tokenSupply?: number;
+                    percent?: number;
+                };
+                bundlers?: {
+                    tokenSupply?: number;
+                    percent?: number;
+                };
+                snipers?: {
+                    tokenSupply?: number;
+                    percent?: number;
+                };
+                lpBurn?: {
+                    tokenSupply?: number;
+                    percent?: number;
+                };
+            }>;
+        };
+        meta: {
+            count: number;
+        };
+    }> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/tokens/audit',

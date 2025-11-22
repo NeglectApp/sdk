@@ -30,9 +30,6 @@ export class NeglectClient {
 
   // 🔥 Auto-generated shortcuts:
 
-  public getMcpConfig = (...args: Parameters<typeof DefaultService.getMcpConfig>) =>
-    DefaultService.getMcpConfig(...args);
-
   public getApiHealth = (...args: Parameters<typeof DefaultService.getApiHealth>) =>
     DefaultService.getApiHealth(...args);
 

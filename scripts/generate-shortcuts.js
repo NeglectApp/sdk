@@ -10,6 +10,10 @@ const path = require("path");
 
 const GENERATED_SERVICES_DIR = path.join(__dirname, "..", "src", "generated", "services");
 const CLIENT_PATH = path.join(__dirname, "..", "src", "client.ts");
+const METHOD_BLOCKLIST = {
+  // Add service -> Set<methodName> entries to prevent shortcut generation.
+  DefaultService: new Set(["getMcpConfig"]),
+};
 
 function pascalToCamel(name) {
   return name.charAt(0).toLowerCase() + name.slice(1);
@@ -24,6 +28,7 @@ function generateShortcuts() {
   for (const file of files) {
     const serviceName = file.replace(".ts", ""); // ex: TokenDataService
     const servicePath = `./generated/services/${serviceName}`;
+    const blockedMethods = METHOD_BLOCKLIST[serviceName];
 
     imports.push(`import { ${serviceName} } from "${servicePath}";`);
 
@@ -34,6 +39,8 @@ function generateShortcuts() {
     let match;
     while ((match = regex.exec(serviceContent)) !== null) {
       const methodName = match[1];
+
+      if (blockedMethods?.has(methodName)) continue;
 
       shortcutMethods.push(`
   public ${methodName} = (...args: Parameters<typeof ${serviceName}.${methodName}>) =>
